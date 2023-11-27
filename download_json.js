@@ -4,18 +4,6 @@ import { Agent, fetch } from "undici";
 import { join, normalize } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-// lista de dominios que permitimos usar http: porque tienen HTTPS roto..
-const brokenHttps = [
-  "datos.mindef.gov.ar", // cert para otro dominio
-  "datos.energia.gob.ar", // cert para otro dominio
-  "datos.minem.gob.ar", // vencido 2022-17-06
-  "datos.agroindustria.gob.ar", // vencido 2022-03-10
-  "andino.siu.edu.ar", // self signed, igual parece que todo tira 404 en este..
-  "datos.salud.gob.ar", // timeout en HTTPS
-  "datos.jus.gob.ar", // HTTPS redirige incorrectamente a URLs inexistentes
-  "www.hidro.gob.ar", // no HTTPS
-];
-
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
 
@@ -48,7 +36,7 @@ const jsonString = json.join("");
 const parsed = JSON.parse(jsonString);
 
 const jobs = parsed.dataset.flatMap((dataset) =>
-  dataset.distribution.map((dist) => ({ dataset, dist })),
+  dataset.distribution.map((dist) => ({ dataset, dist }))
 );
 // forma barrani de distribuir carga entre servidores
 shuffleArray(jobs);
@@ -56,11 +44,11 @@ const totalJobs = jobs.length;
 let nFinished = 0;
 
 const duplicated = hasDuplicates(
-  jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`),
+  jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`)
 );
 if (duplicated) {
   console.error(
-    "ADVERTENCIA: ¡encontré duplicados! es posible que se pisen archivos entre si",
+    "ADVERTENCIA: ¡encontré duplicados! es posible que se pisen archivos entre si"
   );
 }
 
@@ -82,7 +70,7 @@ const greens = Array(128)
                 dist.downloadURL.includes("minsegar-my.sharepoint.com")
               ) {
                 console.debug(
-                  `debug: reintentando ${dist.downloadURL} porque tiró 403`,
+                  `debug: reintentando ${dist.downloadURL} porque tiró 403`
                 );
                 await wait(15000);
                 continue request;
@@ -91,7 +79,7 @@ const greens = Array(128)
             }
             console.error(
               `error: Failed to download URL ${dist.downloadURL} (${dataset.identifier}/${dist.identifier}):`,
-              error,
+              error
             );
             if (!(error instanceof StatusCodeError)) continue request;
           } finally {
@@ -99,7 +87,7 @@ const greens = Array(128)
           }
         } while (0);
       }
-    })(),
+    })()
   );
 
 const interval = setInterval(() => {
@@ -115,12 +103,6 @@ clearInterval(interval);
 async function downloadDist(dataset, dist) {
   const url = new URL(dist.downloadURL);
 
-  // Siempre usar HTTPS excepto cuando está roto
-  if (brokenHttps.includes(url.host)) {
-    url.protocol = "http:";
-    // console.debug(url);
-  } else url.protocol = "https:";
-
   const res = await fetch(url.toString(), {
     dispatcher,
   });
@@ -131,12 +113,12 @@ async function downloadDist(dataset, dist) {
   const fileDirPath = join(
     outputPath,
     sanitizeSuffix(dataset.identifier),
-    sanitizeSuffix(dist.identifier),
+    sanitizeSuffix(dist.identifier)
   );
   await mkdir(fileDirPath, { recursive: true });
   const filePath = join(
     fileDirPath,
-    sanitizeSuffix(dist.fileName || dist.identifier),
+    sanitizeSuffix(dist.fileName || dist.identifier)
   );
   const outputFile = await open(filePath, "w");
 

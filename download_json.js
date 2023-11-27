@@ -77,7 +77,10 @@ const greens = Array(128)
           } catch (error) {
             if (error instanceof StatusCodeError) {
               // algunos servidores usan 403 como coso para decir "calmate"
-              if (error.code === 403) {
+              if (
+                error.code === 403 &&
+                dist.downloadURL.includes("minsegar-my.sharepoint.com")
+              ) {
                 console.debug(
                   `debug: reintentando ${dist.downloadURL} porque tiró 403`,
                 );

@@ -36,13 +36,16 @@ const jsonString = json.join("");
 const parsed = JSON.parse(jsonString);
 
 const jobs = parsed.dataset.flatMap((dataset) =>
-  dataset.distribution.map((dist) => ({ dataset, dist }))
+  dataset.distribution.map((dist) => ({
+    dataset,
+    dist,
+    url: new URL(dist.downloadURL),
+  }))
 );
-// forma barrani de distribuir carga entre servidores
-shuffleArray(jobs);
 const totalJobs = jobs.length;
 let nFinished = 0;
 
+// por las dudas verificar que no hayan archivos duplicados
 const duplicated = hasDuplicates(
   jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`)
 );
@@ -150,19 +153,6 @@ function sanitizeSuffix(path) {
  */
 function hasDuplicates(array) {
   return new Set(array).size !== array.length;
-}
-
-// https://stackoverflow.com/a/12646864
-/**
- * @argument {any[]} array
- */
-function shuffleArray(array) {
-  for (var i = array.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-  }
 }
 
 /**

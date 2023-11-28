@@ -4,13 +4,36 @@ import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
 import pLimit from "p-limit";
 
+const sitiosPorDefecto = [
+  "https://datos.gob.ar/data.json",
+  "http://datos.energia.gob.ar/data.json",
+  "https://datos.magyp.gob.ar/data.json",
+  "https://datos.acumar.gov.ar/data.json",
+  "https://datasets.datos.mincyt.gob.ar/data.json",
+  "https://datos.arsat.com.ar/data.json",
+  "https://datos.cultura.gob.ar/data.json",
+  "https://datos.mininterior.gob.ar/data.json",
+  "https://datos.produccion.gob.ar/data.json",
+  "https://datos.salud.gob.ar/data.json",
+  "https://datos.transporte.gob.ar/data.json",
+  "https://ckan.ciudaddemendoza.gov.ar/data.json",
+  "https://datos.santafe.gob.ar/data.json",
+  "https://datosabiertos.chaco.gob.ar/data.json",
+  "https://datosabiertos.mercedes.gob.ar/data.json",
+  "http://luj-bue-datos.paisdigital.innovacion.gob.ar/data.json",
+  "https://datosabiertos.desarrollosocial.gob.ar",
+  "http://datos.mindef.gov.ar/data.json",
+];
+
+// desactivado porque va MUY lento: datosabiertos.gualeguaychu.gov.ar
+
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
 
 setGlobalDispatcher(
   new Agent({
     pipelining: 0,
-  })
+  }),
 );
 
 /** key es host
@@ -28,14 +51,13 @@ class StatusCodeError extends Error {
   }
 }
 class TooManyRedirectsError extends Error {}
-const jsonUrls = process.argv.slice(2);
+let jsonUrls = process.argv.slice(2);
 if (jsonUrls.length < 1) {
-  console.error("Especificamente el url al json porfa");
-  process.exit(1);
+  jsonUrls = sitiosPorDefecto;
 }
 for (const url of jsonUrls)
   downloadFromData(url).catch((error) =>
-    console.error(`${url} FALLÓ CON`, error)
+    console.error(`${url} FALLÓ CON`, error),
   );
 
 /**
@@ -64,7 +86,7 @@ async function downloadFromData(jsonUrlString) {
             return true;
           } catch (error) {
             errorFile.write(
-              JSON.stringify(encodeError({ dataset, dist }, error)) + "\n"
+              JSON.stringify(encodeError({ dataset, dist }, error)) + "\n",
             );
             return false;
           }
@@ -75,7 +97,7 @@ async function downloadFromData(jsonUrlString) {
           url: patchUrl(new URL(dist.downloadURL)),
           outputPath,
           attempts: 0,
-        }))
+        })),
     );
     const totalJobs = jobs.length;
     let nFinished = 0;
@@ -107,7 +129,7 @@ async function downloadFromData(jsonUrlString) {
     process.stderr.write(`info[${jsonUrl.host}]: 0/${totalJobs} done\n`);
     const interval = setInterval(() => {
       process.stderr.write(
-        `info[${jsonUrl.host}]: ${nFinished}/${totalJobs} done\n`
+        `info[${jsonUrl.host}]: ${nFinished}/${totalJobs} done\n`,
       );
     }, 30000);
     await Promise.all(promises);
@@ -175,12 +197,12 @@ async function downloadDist({ dist, dataset, url, outputPath }) {
   const fileDirPath = join(
     outputPath,
     sanitizeSuffix(dataset.identifier),
-    sanitizeSuffix(dist.identifier)
+    sanitizeSuffix(dist.identifier),
   );
   await mkdir(fileDirPath, { recursive: true });
   const filePath = join(
     fileDirPath,
-    sanitizeSuffix(dist.fileName || dist.identifier)
+    sanitizeSuffix(dist.fileName || dist.identifier),
   );
 
   if (!res.body) throw new Error("no body");
@@ -218,11 +240,11 @@ function sanitizeSuffix(path) {
  */
 function chequearIdsDuplicados(jobs) {
   const duplicated = hasDuplicates(
-    jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`)
+    jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`),
   );
   if (duplicated) {
     console.error(
-      "ADVERTENCIA: ¡encontré duplicados! es posible que se pisen archivos entre si"
+      "ADVERTENCIA: ¡encontré duplicados! es posible que se pisen archivos entre si",
     );
   }
 }

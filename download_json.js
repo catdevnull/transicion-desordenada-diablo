@@ -7,10 +7,11 @@ import { pipeline } from "node:stream/promises";
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
 
+// TODO: revisar por qué falla http://www.ign.gob.ar/descargas/geodatos/CSV/ign_municipio.csv
+
 setGlobalDispatcher(
   new Agent({
     pipelining: 0,
-    maxRedirections: 20,
   })
 );
 
@@ -23,6 +24,7 @@ class StatusCodeError extends Error {
     this.code = code;
   }
 }
+class TooManyRedirectsError extends Error {}
 
 let jsonUrlString = process.argv[2];
 if (!jsonUrlString) {
@@ -119,7 +121,7 @@ async function downloadDistWithRetries(job, tries = 0) {
     // si no fue un error de http, reintentar hasta 5 veces con 5 segundos de por medio
     else if (
       !(error instanceof StatusCodeError) &&
-      !errorIsInfiniteRedirect(error) &&
+      !(error instanceof TooManyRedirectsError) &&
       tries < 5
     ) {
       await wait(5000);
@@ -134,7 +136,11 @@ async function downloadDistWithRetries(job, tries = 0) {
 async function downloadDist({ dist, dataset }) {
   const url = new URL(dist.downloadURL);
 
-  const res = await request(url.toString());
+  const res = await request(url.toString(), {
+    maxRedirections: 20,
+  });
+  if (res.statusCode >= 300 && res.statusCode <= 399)
+    throw new TooManyRedirectsError();
   if (res.statusCode < 200 || res.statusCode > 299) {
     throw new StatusCodeError(res.statusCode);
   }
@@ -203,11 +209,9 @@ function wait(ms) {
 function encodeError(error) {
   if (error instanceof StatusCodeError)
     return { kind: "http_error", status_code: error.code };
-  else if (errorIsInfiniteRedirect(error)) return { kind: "infinite_redirect" };
+  else if (error instanceof TooManyRedirectsError)
+    return { kind: "infinite_redirect" };
   else {
-    return { kind: "generic_error", error: error.message };
+    return { kind: "generic_error", error: error.code || error.message };
   }
-}
-function errorIsInfiniteRedirect(error) {
-  return error?.message === "redirect count exceeded";
 }

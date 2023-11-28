@@ -2,7 +2,6 @@
 import { mkdir, open, writeFile } from "node:fs/promises";
 import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
-import { pipeline } from "node:stream/promises";
 
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
@@ -29,109 +28,107 @@ if (!jsonUrlString) {
   console.error("Especificamente el url al json porfa");
   process.exit(1);
 }
-const jsonUrl = new URL(jsonUrlString);
-const outputPath = jsonUrl.host;
-await mkdir(outputPath, { recursive: true });
-const errorFile = await open(join(outputPath, "errors.jsonl"), "w");
+downloadFromData(jsonUrlString);
 
-const jsonRes = await fetch(jsonUrl);
-// prettier-ignore
-const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
-await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
+/**
+ * @param {string} jsonUrlString
+ */
+async function downloadFromData(jsonUrlString) {
+  const jsonUrl = new URL(jsonUrlString);
+  const outputPath = jsonUrl.host;
+  await mkdir(outputPath, { recursive: true });
+  const errorFile = await open(join(outputPath, "errors.jsonl"), "w");
 
-const jobs = parsed.dataset.flatMap((dataset) =>
-  dataset.distribution.map((dist) => ({
-    dataset,
-    dist,
-    url: patchUrl(new URL(dist.downloadURL)),
-  }))
-);
-const totalJobs = jobs.length;
-let nFinished = 0;
-let nErrors = 0;
+  const jsonRes = await fetch(jsonUrl);
+  // prettier-ignore
+  const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
+  await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
 
-// por las dudas verificar que no hayan archivos duplicados
-chequearIdsDuplicados();
+  /** @type {DownloadJob[]} */
+  const jobs = parsed.dataset.flatMap((dataset) =>
+    dataset.distribution.map((dist) => ({
+      dataset,
+      dist,
+      url: patchUrl(new URL(dist.downloadURL)),
+      outputPath,
+      attempts: 0,
+    }))
+  );
+  const totalJobs = jobs.length;
+  let nFinished = 0;
+  let nErrors = 0;
 
-/** @type {Map< string, DownloadJob[] >} */
-let jobsPerHost = new Map();
-for (const job of jobs) {
-  jobsPerHost.set(job.url.host, [
-    ...(jobsPerHost.get(job.url.host) || []),
-    job,
-  ]);
-}
+  // por las dudas verificar que no hayan archivos duplicados
+  chequearIdsDuplicados(jobs);
 
-const greens = [...jobsPerHost.entries()].flatMap(([host, jobs]) => {
-  const nThreads = 8;
-  return Array(nThreads)
+  shuffleArray(jobs);
+
+  const nThreads = process.env.N_THREADS ? parseInt(process.env.N_THREADS) : 64;
+  const greens = Array(nThreads)
     .fill(0)
     .map(() =>
       (async () => {
         let job;
         while ((job = jobs.pop())) {
+          if (job.waitUntil) await waitUntil(job.waitUntil);
           try {
-            await downloadDistWithRetries(job);
+            await downloadDist(job);
           } catch (error) {
-            await errorFile.write(
-              JSON.stringify({
-                url: job.url.toString(),
-                ...encodeError(error),
-              }) + "\n"
-            );
-            nErrors++;
-          } finally {
-            nFinished++;
+            // algunos servidores usan 403 como coso para decir "calmate"
+            // intentar hasta 15 veces con 15 segundos de por medio
+            if (
+              error instanceof StatusCodeError &&
+              error.code === 403 &&
+              job.url.host === "minsegar-my.sharepoint.com" &&
+              job.attempts < 15
+            ) {
+              jobs.unshift({
+                ...job,
+                attempts: job.attempts + 1,
+                waitUntil: nowPlusNSeconds(15),
+              });
+              continue;
+            }
+            // si no fue un error de http, reintentar hasta 5 veces con 5 segundos de por medio
+            else if (
+              !(error instanceof StatusCodeError) &&
+              !(error instanceof TooManyRedirectsError) &&
+              job.attempts < 5
+            ) {
+              jobs.unshift({
+                ...job,
+                attempts: job.attempts + 1,
+                waitUntil: nowPlusNSeconds(5),
+              });
+              continue;
+            } else {
+              await errorFile.write(
+                JSON.stringify({
+                  url: job.url.toString(),
+                  ...encodeError(error),
+                }) + "\n"
+              );
+              nErrors++;
+            }
           }
+          nFinished++;
         }
       })()
     );
-});
-process.stderr.write(`greens: ${greens.length}\n`);
+  process.stderr.write(`greens: ${greens.length}\n`);
 
-const interval = setInterval(() => {
-  process.stderr.write(`info: ${nFinished}/${totalJobs} done\n`);
-}, 30000);
-await Promise.all(greens);
-clearInterval(interval);
-if (nErrors > 0) console.error(`Finished with ${nErrors} errors`);
-
-/**
- * @argument {DownloadJob} job
- * @argument {number} tries
- */
-async function downloadDistWithRetries(job, tries = 0) {
-  const { url } = job;
-  try {
-    await downloadDist(job);
-  } catch (error) {
-    // algunos servidores usan 403 como coso para decir "calmate"
-    // intentar hasta 15 veces con 15 segundos de por medio
-    if (
-      error instanceof StatusCodeError &&
-      error.code === 403 &&
-      url.host === "minsegar-my.sharepoint.com" &&
-      tries < 15
-    ) {
-      await wait(15000);
-      return await downloadDistWithRetries(job, tries + 1);
-    }
-    // si no fue un error de http, reintentar hasta 5 veces con 5 segundos de por medio
-    else if (
-      !(error instanceof StatusCodeError) &&
-      !(error instanceof TooManyRedirectsError) &&
-      tries < 5
-    ) {
-      await wait(5000);
-      return await downloadDistWithRetries(job, tries + 1);
-    } else throw error;
-  }
+  const interval = setInterval(() => {
+    process.stderr.write(`info: ${nFinished}/${totalJobs} done\n`);
+  }, 30000);
+  await Promise.all(greens);
+  clearInterval(interval);
+  if (nErrors > 0) console.error(`Finished with ${nErrors} errors`);
 }
 
 /**
  * @argument {DownloadJob} job
  */
-async function downloadDist({ dist, dataset, url }) {
+async function downloadDist({ dist, dataset, url, outputPath }) {
   // sharepoint no le gusta compartir a bots lol
   const spoofUserAgent = url.host.endsWith("sharepoint.com");
 
@@ -159,16 +156,18 @@ async function downloadDist({ dist, dataset, url }) {
     fileDirPath,
     sanitizeSuffix(dist.fileName || dist.identifier)
   );
-  const outputFile = await open(filePath, "w");
 
   if (!res.body) throw new Error("no body");
-  await pipeline(res.body, outputFile.createWriteStream());
+  await writeFile(filePath, res.body);
 }
 
 /** @typedef DownloadJob
  * @prop {Dataset} dataset
  * @prop {Distribution} dist
  * @prop {URL} url
+ * @prop {string} outputPath
+ * @prop {number} attempts
+ * @prop {Date=} waitUntil
  */
 /** @typedef Dataset
  * @prop {string} identifier
@@ -188,7 +187,10 @@ function sanitizeSuffix(path) {
   return normalize(path).replace(/^(\.\.(\/|\\|$))+/, "");
 }
 
-function chequearIdsDuplicados() {
+/**
+ * @param {DownloadJob[]} jobs
+ */
+function chequearIdsDuplicados(jobs) {
   const duplicated = hasDuplicates(
     jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`)
   );
@@ -206,8 +208,20 @@ function hasDuplicates(array) {
 
 /** @argument {number} ms */
 function wait(ms) {
-  if (ms < 0) return Promise.resolve();
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+/** @argument {Date} date */
+function waitUntil(date) {
+  return wait(Math.max(+new Date() - +date, 0));
+}
+/**
+ * genera una Date de ahora+n segundos
+ * @param {number} seconds
+ */
+function nowPlusNSeconds(seconds) {
+  let d = new Date();
+  d.setSeconds(d.getSeconds() + seconds);
+  return d;
 }
 
 function encodeError(error) {
@@ -230,4 +244,13 @@ function patchUrl(url) {
     url.protocol = "https:";
   }
   return url;
+}
+
+// https://stackoverflow.com/a/12646864
+/** @param {any[]} array */
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }

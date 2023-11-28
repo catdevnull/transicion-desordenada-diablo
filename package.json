@@ -5,13 +5,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "env NODE_EXTRA_CA_CERTS=node_modules/node_extra_ca_certs_mozilla_bundle/ca_bundle/ca_intermediate_root_bundle.pem node download_json.js"
+    "run": "env NODE_EXTRA_CA_CERTS=pki/ca_intermediate_root_bundle.pem node download_json.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node_extra_ca_certs_mozilla_bundle": "^1.0.5",
     "undici": "^5.28.0"
   },
   "devDependencies": {

@@ -118,7 +118,7 @@ async function downloadFromData(jsonUrlString) {
         try {
           await downloadDistWithRetries(job);
         } catch (error) {
-          await errorFile.write(JSON.stringify(job, encodeError(error)) + "\n");
+          errorFile.write(JSON.stringify(encodeError(job, error)) + "\n");
           nErrors++;
         } finally {
           nFinished++;
@@ -265,7 +265,7 @@ function wait(ms) {
  */
 function encodeError(job, error) {
   const always = {
-    url: job.url?.toString || job.dist.downloadURL,
+    url: job.url?.toString() || job.dist.downloadURL,
     datasetIdentifier: job.dataset.identifier,
     distributionIdentifier: job.dist.identifier,
   };

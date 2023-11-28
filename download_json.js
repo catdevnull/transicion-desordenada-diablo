@@ -7,8 +7,6 @@ import { pipeline } from "node:stream/promises";
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
 
-// TODO: revisar por qué falla http://www.ign.gob.ar/descargas/geodatos/CSV/ign_municipio.csv
-
 setGlobalDispatcher(
   new Agent({
     pipelining: 0,
@@ -45,7 +43,7 @@ const jobs = parsed.dataset.flatMap((dataset) =>
   dataset.distribution.map((dist) => ({
     dataset,
     dist,
-    url: new URL(dist.downloadURL),
+    url: patchUrl(new URL(dist.downloadURL)),
   }))
 );
 const totalJobs = jobs.length;
@@ -133,9 +131,7 @@ async function downloadDistWithRetries(job, tries = 0) {
 /**
  * @argument {DownloadJob} job
  */
-async function downloadDist({ dist, dataset }) {
-  const url = new URL(dist.downloadURL);
-
+async function downloadDist({ dist, dataset, url }) {
   // sharepoint no le gusta compartir a bots lol
   const spoofUserAgent = url.host.endsWith("sharepoint.com");
 
@@ -222,4 +218,16 @@ function encodeError(error) {
   else {
     return { kind: "generic_error", error: error.code || error.message };
   }
+}
+
+/**
+ * parchea URLs que se rompen solas
+ * @param {URL} url
+ */
+function patchUrl(url) {
+  if (url.host === "www.ign.gob.ar") {
+    // por defecto, 'http://www.ign.gob.ar' redirige a 'https://ign.gob.ar' pero su certificado solo aplica para '*.ign.gob.ar'. se sirve todo el contenido correctamente en 'https://www.ign.gob.ar', así que vamos para ahí.
+    url.protocol = "https:";
+  }
+  return url;
 }

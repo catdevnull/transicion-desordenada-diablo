@@ -24,7 +24,7 @@ docker run --rm -it -e N_THREADS=128 -v ./data:/data gitea.nulo.in/nulo/transici
 
 - `{dominio de repo}`
   - `data.json`
-  - `errors.jsonl`
+  - `errors.jsonl`: archivo con todos los errores que se obtuvieron al intentar descargar todo.
   - `{identifier de dataset}`
     - `{identifier de distribution}`
       - `{fileName (o, si no existe, identifier de distribution)}`

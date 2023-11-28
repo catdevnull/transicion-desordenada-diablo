@@ -136,8 +136,16 @@ async function downloadDistWithRetries(job, tries = 0) {
 async function downloadDist({ dist, dataset }) {
   const url = new URL(dist.downloadURL);
 
+  // sharepoint no le gusta compartir a bots lol
+  const spoofUserAgent = url.host.endsWith("sharepoint.com");
+
   const res = await request(url.toString(), {
     maxRedirections: 20,
+    headers: {
+      "User-Agent": spoofUserAgent
+        ? "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
+        : "transicion-desordenada (https://nulo.ar)",
+    },
   });
   if (res.statusCode >= 300 && res.statusCode <= 399)
     throw new TooManyRedirectsError();

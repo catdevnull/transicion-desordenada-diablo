@@ -13,6 +13,13 @@ pnpm run run download_json.js https://datos.gob.ar/data.json
 # guarda en ./datos.gob.ar
 ```
 
+## contenedor
+
+```
+docker run --rm -it -e N_THREADS=128 -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-diablo/downloader
+# descarga datos.gob.ar
+```
+
 ## formato de repo guardado
 
 - `{dominio de repo}`

@@ -13,5 +13,8 @@
   "dependencies": {
     "node_extra_ca_certs_mozilla_bundle": "^1.0.5",
     "undici": "^5.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0"
   }
 }

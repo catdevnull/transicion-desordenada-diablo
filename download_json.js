@@ -64,10 +64,7 @@ async function downloadFromData(jsonUrlString) {
             return true;
           } catch (error) {
             errorFile.write(
-              JSON.stringify({
-                url: dist.downloadURL,
-                ...encodeError(error),
-              }) + "\n"
+              JSON.stringify(encodeError({ dataset, dist }, error)) + "\n"
             );
             return false;
           }
@@ -99,12 +96,7 @@ async function downloadFromData(jsonUrlString) {
         try {
           await downloadDistWithRetries(job);
         } catch (error) {
-          await errorFile.write(
-            JSON.stringify({
-              url: job.url.toString(),
-              ...encodeError(error),
-            }) + "\n"
-          );
+          await errorFile.write(JSON.stringify(job, encodeError(error)) + "\n");
           nErrors++;
         } finally {
           nFinished++;
@@ -245,13 +237,26 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function encodeError(error) {
+/**
+ * @param {{ dataset: Dataset, dist: Distribution, url?: URL }} job
+ * @param {any} error
+ */
+function encodeError(job, error) {
+  const always = {
+    url: job.url?.toString || job.dist.downloadURL,
+    datasetIdentifier: job.dataset.identifier,
+    distributionIdentifier: job.dist.identifier,
+  };
   if (error instanceof StatusCodeError)
-    return { kind: "http_error", status_code: error.code };
+    return { ...always, kind: "http_error", status_code: error.code };
   else if (error instanceof TooManyRedirectsError)
-    return { kind: "infinite_redirect" };
+    return { ...always, kind: "infinite_redirect" };
   else {
-    return { kind: "generic_error", error: error.code || error.message };
+    return {
+      ...always,
+      kind: "generic_error",
+      error: error.code || error.message,
+    };
   }
 }
 

@@ -1,16 +1,18 @@
 // @ts-check
-import { mkdir, open } from "node:fs/promises";
-import { Agent, fetch } from "undici";
+import { mkdir, open, writeFile } from "node:fs/promises";
+import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
 import { pipeline } from "node:stream/promises";
 
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
 
-const dispatcher = new Agent({
-  pipelining: 50,
-  maxRedirections: 20,
-});
+setGlobalDispatcher(
+  new Agent({
+    pipelining: 0,
+    maxRedirections: 20,
+  })
+);
 
 class StatusCodeError extends Error {
   /**
@@ -22,19 +24,20 @@ class StatusCodeError extends Error {
   }
 }
 
-const outputPath = process.argv[2];
-if (!outputPath) {
-  console.error("Especificamente el output porfa");
+let jsonUrlString = process.argv[2];
+if (!jsonUrlString) {
+  console.error("Especificamente el url al json porfa");
   process.exit(1);
 }
+const jsonUrl = new URL(jsonUrlString);
+const outputPath = jsonUrl.host;
 await mkdir(outputPath, { recursive: true });
 const errorFile = await open(join(outputPath, "errors.jsonl"), "w");
 
-// Leer JSON de stdin
-const json = await process.stdin.toArray();
-const jsonString = json.join("");
-/** @type {{ dataset: Dataset[] }} */
-const parsed = JSON.parse(jsonString);
+const jsonRes = await fetch(jsonUrl);
+// prettier-ignore
+const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
+await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
 
 const jobs = parsed.dataset.flatMap((dataset) =>
   dataset.distribution.map((dist) => ({
@@ -60,7 +63,7 @@ for (const job of jobs) {
 }
 
 const greens = [...jobsPerHost.entries()].flatMap(([host, jobs]) => {
-  const nThreads = 128;
+  const nThreads = 8;
   return Array(nThreads)
     .fill(0)
     .map(() =>
@@ -71,7 +74,10 @@ const greens = [...jobsPerHost.entries()].flatMap(([host, jobs]) => {
             await downloadDistWithRetries(job);
           } catch (error) {
             await errorFile.write(
-              JSON.stringify({ url: job.url.toString(), ...encodeError(error) })
+              JSON.stringify({
+                url: job.url.toString(),
+                ...encodeError(error),
+              }) + "\n"
             );
             nErrors++;
           } finally {
@@ -128,11 +134,9 @@ async function downloadDistWithRetries(job, tries = 0) {
 async function downloadDist({ dist, dataset }) {
   const url = new URL(dist.downloadURL);
 
-  const res = await fetch(url.toString(), {
-    dispatcher,
-  });
-  if (!res.ok) {
-    throw new StatusCodeError(res.status);
+  const res = await request(url.toString());
+  if (res.statusCode < 200 || res.statusCode > 299) {
+    throw new StatusCodeError(res.statusCode);
   }
 
   const fileDirPath = join(
@@ -201,10 +205,9 @@ function encodeError(error) {
     return { kind: "http_error", status_code: error.code };
   else if (errorIsInfiniteRedirect(error)) return { kind: "infinite_redirect" };
   else {
-    console.error(error, error.cause.message);
-    return { kind: "generic_error", error };
+    return { kind: "generic_error", error: error.message };
   }
 }
 function errorIsInfiniteRedirect(error) {
-  return error?.cause?.message === "redirect count exceeded";
+  return error?.message === "redirect count exceeded";
 }

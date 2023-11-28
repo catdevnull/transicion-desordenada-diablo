@@ -9,5 +9,6 @@ pnpm install
 ## correr
 
 ```
-pnpm run run download_json.js carpeta_output < dataJsons/datos.gob.ar.data.json
+pnpm run run download_json.js https://datos.gob.ar/data.json
+# guarda en ./datos.gob.ar
 ```

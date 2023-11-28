@@ -21,7 +21,7 @@ const sitiosPorDefecto = [
   "https://datosabiertos.chaco.gob.ar/data.json",
   "https://datosabiertos.mercedes.gob.ar/data.json",
   "http://luj-bue-datos.paisdigital.innovacion.gob.ar/data.json",
-  "https://datosabiertos.desarrollosocial.gob.ar",
+  "https://datosabiertos.desarrollosocial.gob.ar/data.json",
   "http://datos.mindef.gov.ar/data.json",
 ];
 

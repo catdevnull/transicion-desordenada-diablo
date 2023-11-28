@@ -16,7 +16,7 @@ pnpm run run download_json.js https://datos.gob.ar/data.json
 ## contenedor
 
 ```
-docker run --rm -it -e N_THREADS=128 -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-diablo/downloader
+docker run --rm -it -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-diablo/downloader
 # descarga datos.gob.ar
 ```
 

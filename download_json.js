@@ -2,6 +2,7 @@
 import { mkdir, open, writeFile } from "node:fs/promises";
 import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
+import pLimit from "p-limit";
 
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
@@ -11,6 +12,11 @@ setGlobalDispatcher(
     pipelining: 0,
   })
 );
+
+/** key es host
+ * @type {Map<string, import("p-limit").LimitFunction>} */
+const limiters = new Map();
+const nThreads = process.env.N_THREADS ? parseInt(process.env.N_THREADS) : 16;
 
 class StatusCodeError extends Error {
   /**
@@ -63,66 +69,68 @@ async function downloadFromData(jsonUrlString) {
 
   shuffleArray(jobs);
 
-  const nThreads = process.env.N_THREADS ? parseInt(process.env.N_THREADS) : 64;
-  const greens = Array(nThreads)
-    .fill(0)
-    .map(() =>
-      (async () => {
-        let job;
-        while ((job = jobs.pop())) {
-          if (job.waitUntil) await waitUntil(job.waitUntil);
-          try {
-            await downloadDist(job);
-          } catch (error) {
-            // algunos servidores usan 403 como coso para decir "calmate"
-            // intentar hasta 15 veces con 15 segundos de por medio
-            if (
-              error instanceof StatusCodeError &&
-              error.code === 403 &&
-              job.url.host === "minsegar-my.sharepoint.com" &&
-              job.attempts < 15
-            ) {
-              jobs.unshift({
-                ...job,
-                attempts: job.attempts + 1,
-                waitUntil: nowPlusNSeconds(15),
-              });
-              continue;
-            }
-            // si no fue un error de http, reintentar hasta 5 veces con 5 segundos de por medio
-            else if (
-              !(error instanceof StatusCodeError) &&
-              !(error instanceof TooManyRedirectsError) &&
-              job.attempts < 5
-            ) {
-              jobs.unshift({
-                ...job,
-                attempts: job.attempts + 1,
-                waitUntil: nowPlusNSeconds(5),
-              });
-              continue;
-            } else {
-              await errorFile.write(
-                JSON.stringify({
-                  url: job.url.toString(),
-                  ...encodeError(error),
-                }) + "\n"
-              );
-              nErrors++;
-            }
-          }
-          nFinished++;
-        }
-      })()
-    );
-  process.stderr.write(`greens: ${greens.length}\n`);
+  const promises = jobs.map((job) => {
+    let limit = limiters.get(job.url.host);
+    if (!limit) {
+      limit = pLimit(nThreads);
+      limiters.set(job.url.host, limit);
+    }
+    return limit(async () => {
+      try {
+        await downloadDistWithRetries(job);
+      } catch (error) {
+        await errorFile.write(
+          JSON.stringify({
+            url: job.url.toString(),
+            ...encodeError(error),
+          }) + "\n"
+        );
+        nErrors++;
+      } finally {
+        nFinished++;
+      }
+    });
+  });
 
+  process.stderr.write(`info: 0/${totalJobs} done\n`);
   const interval = setInterval(() => {
     process.stderr.write(`info: ${nFinished}/${totalJobs} done\n`);
   }, 30000);
-  await Promise.all(greens);
+  await Promise.all(promises);
   clearInterval(interval);
   if (nErrors > 0) console.error(`Finished with ${nErrors} errors`);
+}
+
+/**
+ * @argument {DownloadJob} job
+ * @argument {number} attempts
+ */
+async function downloadDistWithRetries(job, attempts = 0) {
+  const { url } = job;
+  try {
+    await downloadDist(job);
+  } catch (error) {
+    // algunos servidores usan 403 como coso para decir "calmate"
+    // intentar hasta 15 veces con 15 segundos de por medio
+    if (
+      error instanceof StatusCodeError &&
+      error.code === 403 &&
+      url.host === "minsegar-my.sharepoint.com" &&
+      attempts < 15
+    ) {
+      await wait(15000);
+      return await downloadDistWithRetries(job, attempts + 1);
+    }
+    // si no fue un error de http, reintentar hasta 5 veces con 5 segundos de por medio
+    else if (
+      !(error instanceof StatusCodeError) &&
+      !(error instanceof TooManyRedirectsError) &&
+      attempts < 5
+    ) {
+      await wait(5000);
+      return await downloadDistWithRetries(job, attempts + 1);
+    } else throw error;
+  }
 }
 
 /**
@@ -209,19 +217,6 @@ function hasDuplicates(array) {
 /** @argument {number} ms */
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-/** @argument {Date} date */
-function waitUntil(date) {
-  return wait(Math.max(+new Date() - +date, 0));
-}
-/**
- * genera una Date de ahora+n segundos
- * @param {number} seconds
- */
-function nowPlusNSeconds(seconds) {
-  let d = new Date();
-  d.setSeconds(d.getSeconds() + seconds);
-  return d;
 }
 
 function encodeError(error) {

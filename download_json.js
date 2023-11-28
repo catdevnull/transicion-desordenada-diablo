@@ -16,7 +16,7 @@ setGlobalDispatcher(
 /** key es host
  * @type {Map<string, import("p-limit").LimitFunction>} */
 const limiters = new Map();
-const nThreads = process.env.N_THREADS ? parseInt(process.env.N_THREADS) : 16;
+const nThreads = process.env.N_THREADS ? parseInt(process.env.N_THREADS) : 8;
 
 class StatusCodeError extends Error {
   /**
@@ -28,13 +28,15 @@ class StatusCodeError extends Error {
   }
 }
 class TooManyRedirectsError extends Error {}
-
-let jsonUrlString = process.argv[2];
-if (!jsonUrlString) {
+const jsonUrls = process.argv.slice(2);
+if (jsonUrls.length < 1) {
   console.error("Especificamente el url al json porfa");
   process.exit(1);
 }
-downloadFromData(jsonUrlString);
+for (const url of jsonUrls)
+  downloadFromData(url).catch((error) =>
+    console.error(`${url} FALLÓ CON`, error)
+  );
 
 /**
  * @param {string} jsonUrlString
@@ -43,62 +45,86 @@ async function downloadFromData(jsonUrlString) {
   const jsonUrl = new URL(jsonUrlString);
   const outputPath = jsonUrl.host;
   await mkdir(outputPath, { recursive: true });
-  const errorFile = await open(join(outputPath, "errors.jsonl"), "w");
+  const errorFile = (
+    await open(join(outputPath, "errors.jsonl"), "w")
+  ).createWriteStream();
 
-  const jsonRes = await fetch(jsonUrl);
-  // prettier-ignore
-  const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
-  await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
+  try {
+    const jsonRes = await fetch(jsonUrl);
+    // prettier-ignore
+    const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
+    await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
 
-  /** @type {DownloadJob[]} */
-  const jobs = parsed.dataset.flatMap((dataset) =>
-    dataset.distribution.map((dist) => ({
-      dataset,
-      dist,
-      url: patchUrl(new URL(dist.downloadURL)),
-      outputPath,
-      attempts: 0,
-    }))
-  );
-  const totalJobs = jobs.length;
-  let nFinished = 0;
-  let nErrors = 0;
+    /** @type {DownloadJob[]} */
+    const jobs = parsed.dataset.flatMap((dataset) =>
+      dataset.distribution
+        .filter((dist) => {
+          try {
+            patchUrl(new URL(dist.downloadURL));
+            return true;
+          } catch (error) {
+            errorFile.write(
+              JSON.stringify({
+                url: dist.downloadURL,
+                ...encodeError(error),
+              }) + "\n"
+            );
+            return false;
+          }
+        })
+        .map((dist) => ({
+          dataset,
+          dist,
+          url: patchUrl(new URL(dist.downloadURL)),
+          outputPath,
+          attempts: 0,
+        }))
+    );
+    const totalJobs = jobs.length;
+    let nFinished = 0;
+    let nErrors = 0;
 
-  // por las dudas verificar que no hayan archivos duplicados
-  chequearIdsDuplicados(jobs);
+    // por las dudas verificar que no hayan archivos duplicados
+    chequearIdsDuplicados(jobs);
 
-  shuffleArray(jobs);
+    shuffleArray(jobs);
 
-  const promises = jobs.map((job) => {
-    let limit = limiters.get(job.url.host);
-    if (!limit) {
-      limit = pLimit(nThreads);
-      limiters.set(job.url.host, limit);
-    }
-    return limit(async () => {
-      try {
-        await downloadDistWithRetries(job);
-      } catch (error) {
-        await errorFile.write(
-          JSON.stringify({
-            url: job.url.toString(),
-            ...encodeError(error),
-          }) + "\n"
-        );
-        nErrors++;
-      } finally {
-        nFinished++;
+    const promises = jobs.map((job) => {
+      let limit = limiters.get(job.url.host);
+      if (!limit) {
+        limit = pLimit(nThreads);
+        limiters.set(job.url.host, limit);
       }
+      return limit(async () => {
+        try {
+          await downloadDistWithRetries(job);
+        } catch (error) {
+          await errorFile.write(
+            JSON.stringify({
+              url: job.url.toString(),
+              ...encodeError(error),
+            }) + "\n"
+          );
+          nErrors++;
+        } finally {
+          nFinished++;
+        }
+      });
     });
-  });
 
-  process.stderr.write(`info: 0/${totalJobs} done\n`);
-  const interval = setInterval(() => {
-    process.stderr.write(`info: ${nFinished}/${totalJobs} done\n`);
-  }, 30000);
-  await Promise.all(promises);
-  clearInterval(interval);
-  if (nErrors > 0) console.error(`Finished with ${nErrors} errors`);
+    process.stderr.write(`info[${jsonUrl.host}]: 0/${totalJobs} done\n`);
+    const interval = setInterval(() => {
+      process.stderr.write(
+        `info[${jsonUrl.host}]: ${nFinished}/${totalJobs} done\n`
+      );
+    }, 30000);
+    await Promise.all(promises);
+    clearInterval(interval);
+    if (nErrors > 0)
+      console.error(`${jsonUrl.host}: Finished with ${nErrors} errors`);
+  } finally {
+    errorFile.close();
+  }
 }
 
 /**
@@ -125,7 +151,7 @@ async function downloadDistWithRetries(job, attempts = 0) {
     else if (
       !(error instanceof StatusCodeError) &&
       !(error instanceof TooManyRedirectsError) &&
-      attempts < 5
+      attempts < 10
     ) {
       await wait(5000);
       return await downloadDistWithRetries(job, attempts + 1);

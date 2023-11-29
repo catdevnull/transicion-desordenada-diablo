@@ -23,6 +23,36 @@ const sitiosPorDefecto = [
   "http://luj-bue-datos.paisdigital.innovacion.gob.ar/data.json",
   "https://datosabiertos.desarrollosocial.gob.ar/data.json",
   "http://datos.mindef.gov.ar/data.json",
+
+  "https://monitoreo.datos.gob.ar/catalog/jgm/data.json",
+  // 'https://datosabiertos.enacom.gob.ar/data.json',
+  "https://monitoreo.datos.gob.ar/catalog/otros/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/aaip/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/sedronar/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/modernizacion/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/shn/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/smn/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/ign/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/justicia/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/seguridad/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/ambiente/data.json",
+  // "http://andino.siu.edu.ar/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/educacion/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/inti/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/ssprys/data.json",
+  "https://www.presupuestoabierto.gob.ar/sici/rest-api/catalog/public",
+  "https://transparencia.enargas.gob.ar/data.json",
+  "https://infra.datos.gob.ar/catalog/sspm/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/ssprys/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/siep/data.json",
+  "https://monitoreo.datos.gob.ar/catalog/exterior/data.json",
+  "http://datos.pami.org.ar/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/trabajo/data.json",
+  "https://datos.yvera.gob.ar/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/renaper/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/dine/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/obras/data.json",
+  "https://monitoreo.datos.gob.ar/media/catalog/generos/data.json",
 ];
 
 // desactivado porque va MUY lento: datosabiertos.gualeguaychu.gov.ar
@@ -104,7 +134,7 @@ async function downloadFromData(jsonUrlString) {
     let nErrors = 0;
 
     // por las dudas verificar que no hayan archivos duplicados
-    chequearIdsDuplicados(jobs);
+    chequearIdsDuplicados(jobs, outputPath);
 
     shuffleArray(jobs);
 
@@ -126,16 +156,16 @@ async function downloadFromData(jsonUrlString) {
       });
     });
 
-    process.stderr.write(`info[${jsonUrl.host}]: 0/${totalJobs} done\n`);
+    process.stderr.write(`info[${outputPath}]: 0/${totalJobs} done\n`);
     const interval = setInterval(() => {
       process.stderr.write(
-        `info[${jsonUrl.host}]: ${nFinished}/${totalJobs} done\n`,
+        `info[${outputPath}]: ${nFinished}/${totalJobs} done\n`,
       );
     }, 30000);
     await Promise.all(promises);
     clearInterval(interval);
     if (nErrors > 0)
-      console.error(`${jsonUrl.host}: Finished with ${nErrors} errors`);
+      console.error(`${outputPath}: Finished with ${nErrors} errors`);
   } finally {
     errorFile.close();
   }
@@ -237,14 +267,15 @@ function sanitizeSuffix(path) {
 
 /**
  * @param {DownloadJob[]} jobs
+ * @param {string} id
  */
-function chequearIdsDuplicados(jobs) {
+function chequearIdsDuplicados(jobs, id) {
   const duplicated = hasDuplicates(
     jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`),
   );
   if (duplicated) {
     console.error(
-      "ADVERTENCIA: ¡encontré duplicados! es posible que se pisen archivos entre si",
+      `ADVERTENCIA[${id}]: ¡encontré duplicados! es posible que se pisen archivos entre si`,
     );
   }
 }

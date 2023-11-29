@@ -1,5 +1,9 @@
 # WIP: descargador masivo de datos públicos
 
+descarga masivamente archivos de la mayoría de los portales de datos argentinos que tengan un archivo "data.json" ([DCAT](https://www.w3.org/TR/vocab-dcat-2/)). la idea es tener un espejo (mirror) lo más perfecto posible en el caso de que cualquiera de las fuentes se caiga.
+
+## setup
+
 require [Node.js](https://nodejs.org) y [pnpm](https://pnpm.io/)
 
 ```

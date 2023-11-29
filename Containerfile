@@ -1,6 +1,6 @@
 
 FROM docker.io/alpine:3.18 as build
-RUN apk add --no-cache npm esbuild
+RUN apk add --no-cache npm
 RUN npm install -g esbuild
 WORKDIR /tmp/build
 

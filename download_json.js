@@ -85,6 +85,7 @@ let jsonUrls = process.argv.slice(2);
 if (jsonUrls.length < 1) {
   jsonUrls = sitiosPorDefecto;
 }
+await writeFile("readme.txt", generateReadme(jsonUrls));
 for (const url of jsonUrls)
   downloadFromData(url).catch((error) =>
     console.error(`${url} FALLÓ CON`, error),
@@ -332,4 +333,46 @@ function shuffleArray(array) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
+}
+
+/**
+ * @param {string[]} portales
+ */
+function generateReadme(portales) {
+  // basado en el readme de Patricio
+  return `Dumps de Portales de Datos Abiertos de la República Argentina
+=============================================================
+
+El zip contiene todo lo que se pudo descargar de los portales seleccionados, que fueron:
+${portales.map((p) => `- ${p}`).join("\n")}
+
+La carpeta está ordenada en subcarpetas cuyo nombre corresponde al ID del dataset/distribución del portal. De esta forma, 
+leyendo el data.json se puede programaticamente y de manera simple volver a mapear qué archivo le corresponde a cada
+distribución.
+
+Formato:
+
+- {url de data.json sin protocolo y con / reemplazado por _}/
+  - data.json
+  - errors.jsonl: archivo con todos los errores que se obtuvieron al intentar descargar todo.
+  - {identifier de dataset}/
+    - {identifier de distribution}/
+      - {fileName (o, si no existe, identifier de distribution)}
+
+Ejemplo:
+
+- datos.gob.ar_data.json/
+  - data.json
+  - errors.jsonl
+  - turismo_fbc269ea-5f71-45b6-b70c-8eb38a03b8db/
+    - turismo_0774a0bb-71c2-44d7-9ea6-780e6bd06d50/
+      - cruceristas-por-puerto-residencia-desagregado-por-pais-mes.csv
+    - ...
+  - energia_0d4a18ee-9371-439a-8a94-4f53a9822664/
+    - energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866/
+      - energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866 (este archivo no tiene fileName en el data.json, entonces se reutiliza el identifier)
+  - ...
+
+Este dump fue generado con transicion-desordenada-diablo: https://gitea.nulo.in/Nulo/transicion-desordenada-diablo
+`;
 }

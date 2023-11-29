@@ -27,7 +27,7 @@ docker run --rm -it -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-di
 
 ## formato de repo guardado
 
-- `{dominio de repo}/`
+- `{url de data.json sin protocolo y con / reemplazado por _}/`
   - `data.json`
   - `errors.jsonl`: archivo con todos los errores que se obtuvieron al intentar descargar todo.
   - `{identifier de dataset}/`
@@ -36,7 +36,7 @@ docker run --rm -it -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-di
 
 ### ejemplo
 
-- `datos.gob.ar/`
+- `datos.gob.ar_data.json/`
   - `data.json`
   - `errors.jsonl`
   - `turismo_fbc269ea-5f71-45b6-b70c-8eb38a03b8db/`

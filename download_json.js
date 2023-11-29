@@ -65,7 +65,7 @@ for (const url of jsonUrls)
  */
 async function downloadFromData(jsonUrlString) {
   const jsonUrl = new URL(jsonUrlString);
-  const outputPath = jsonUrl.host;
+  const outputPath = `${jsonUrl.host}${jsonUrl.pathname}`.replaceAll("/", "_");
   await mkdir(outputPath, { recursive: true });
   const errorFile = (
     await open(join(outputPath, "errors.jsonl"), "w")

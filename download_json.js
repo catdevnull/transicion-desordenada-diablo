@@ -191,13 +191,13 @@ async function downloadDistWithRetries(job, attempts = 0) {
       await wait(15000);
       return await downloadDistWithRetries(job, attempts + 1);
     }
-    // si no fue un error de http, reintentar hasta 5 veces con 5 segundos de por medio
+    // si no fue un error de http, reintentar hasta 3 veces con 5 segundos de por medio
     else if (
       !(error instanceof StatusCodeError) &&
       !(error instanceof TooManyRedirectsError) &&
-      attempts < 10
+      attempts < 3
     ) {
-      await wait(5000);
+      await wait(5000 + Math.random() * 10000);
       return await downloadDistWithRetries(job, attempts + 1);
     } else throw error;
   }

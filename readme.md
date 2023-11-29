@@ -11,7 +11,7 @@ pnpm install
 ```
 # descargar portal datos.gob.ar
 pnpm run run https://datos.gob.ar/data.json
-# guarda en data/datos.gob.ar
+# guarda en data/datos.gob.ar_data.json
 
 # descargar todos los portales conocidos
 pnpm run run

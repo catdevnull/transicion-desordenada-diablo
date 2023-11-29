@@ -9,8 +9,13 @@ pnpm install
 ## correr
 
 ```
-pnpm run run download_json.js https://datos.gob.ar/data.json
-# guarda en ./datos.gob.ar
+# descargar portal datos.gob.ar
+pnpm run run https://datos.gob.ar/data.json
+# guarda en data/datos.gob.ar
+
+# descargar todos los portales conocidos
+pnpm run run
+# guarda en data/*
 ```
 
 ## contenedor

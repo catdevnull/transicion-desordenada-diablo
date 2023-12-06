@@ -4,4 +4,6 @@ log
 prueba
 datos.gob.ar*
 data/
+data*
+
 *.zip

@@ -55,11 +55,11 @@
                 (no está en este dump porque hubo un error al bajarlo)
               {:else}
                 <div>
-                  <h3 class="flex gap-2">
+                  <h3>
                     {dist.title}
                     {#if dist.format}
                       <span
-                        class="border border-current text-blue-800 relative flex items-center text-xs font-semibold pl-2 pr-2.5 py-1 rounded-full"
+                        class="border border-current text-blue-800 relative inline-flex items-center text-xs font-semibold pl-2 pr-2.5 py-1 rounded-full ml-1"
                       >
                         <span>{dist.format}</span>
                       </span>

@@ -47,9 +47,7 @@
                 e.datasetIdentifier === dataset.identifier &&
                 e.distributionIdentifier === dist.identifier,
             )}
-            <li
-              class="flex px-6 py-5 hover:bg-gray-50 justify-between items-center"
-            >
+            <li class="flex px-6 py-5 justify-between items-center">
               {#if error}
                 {dist.title}
                 (no está en este dump porque hubo un error al bajarlo)

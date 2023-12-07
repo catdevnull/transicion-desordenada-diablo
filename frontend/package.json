@@ -31,5 +31,10 @@
     "regexparam": "^3.0.0",
     "streamsaver": "^2.0.6",
     "zod": "^3.22.4"
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ]
   }
 }

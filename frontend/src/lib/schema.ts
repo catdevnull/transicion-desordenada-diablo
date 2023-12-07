@@ -23,7 +23,7 @@ export const zDataset = z.object({
 export const zData = z.object({
   title: z.string(),
   description: z.string(),
-  homepage: z.string(),
+  homepage: z.string().optional(),
   dataset: z.array(zDataset),
 });
 

@@ -4,6 +4,9 @@ import svelteSVG from "vite-plugin-svelte-svg";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    sourcemap: true,
+  },
   plugins: [
     svelte(),
     svelteSVG({

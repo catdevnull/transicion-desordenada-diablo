@@ -4,15 +4,15 @@ import { zData, type Distribution, zError } from "./schema";
 export async function downloadFile(
   dataPath: string,
   datasetId: string,
-  dist: Distribution
+  dist: Distribution,
 ) {
   const outputS = streamSaver.createWriteStream(
-    dist.downloadURL.slice(dist.downloadURL.lastIndexOf("/") + 1)
+    dist.downloadURL.slice(dist.downloadURL.lastIndexOf("/") + 1),
   );
   const res = await fetch(
     `${dataPath}/${datasetId}/${dist.identifier}/${
       dist.fileName || dist.identifier
-    }.gz`
+    }.gz`,
   );
   const ds = new DecompressionStream("gzip");
   const decompressedStream = res.body!.pipeThrough(ds);
@@ -35,7 +35,7 @@ const endpoint = "http://localhost:8081";
 export const gobData = `${endpoint}/datos.gob.ar_data.json`;
 export async function fetchData(url: string) {
   const json = await loadGzippedJson(`${url}/data.json.gz`);
-  console.debug(json);
+  if (import.meta.env.DEV) console.debug(json);
   return zData.parse(json);
 }
 export async function fetchErrors(url: string) {

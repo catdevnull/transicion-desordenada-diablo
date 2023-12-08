@@ -4,6 +4,7 @@
   import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
   import { fetchData, fetchErrors } from "../dump";
   import { routes } from "../router";
+  import type { Dataset } from "../schema";
 
   export let params: { dumpUrl: string };
   const url = decodeURIComponent(params.dumpUrl);
@@ -16,6 +17,14 @@
     if (!url.startsWith("http://") && !url.startsWith("https://"))
       return `https://${url}`;
     return url;
+  }
+
+  let query: string = "";
+  function filterDatasets(datasets: Dataset[], query: string): Dataset[] {
+    return datasets.filter(
+      (dataset) =>
+        dataset.identifier.includes(query) || dataset.title.includes(query),
+    );
   }
 </script>
 
@@ -48,8 +57,18 @@
           </a>
         {/if}
       </header>
+
+      <div class="w-full mx-auto px-6 py-2">
+        <input
+          type="text"
+          placeholder="Buscar..."
+          class="flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"
+          bind:value={query}
+        />
+      </div>
+
       <ul class="divide-y divide-gray-100">
-        {#each data.dataset as dataset}
+        {#each filterDatasets(data.dataset, query) as dataset}
           {@const datasetLink = inject(routes.Dataset, {
             dumpUrl: params.dumpUrl,
             id: dataset.identifier,

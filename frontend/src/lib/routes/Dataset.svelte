@@ -28,8 +28,6 @@
           <small>
             <a
               class="flex text-blue-500 leading-none gap-1 items-center"
-              target="_blank"
-              rel="noopener"
               href={inject(routes.DumpIndex, { dumpUrl: params.dumpUrl })}
             >
               <ArrowBack fill="currentColor" class="h-[1.25em]" />

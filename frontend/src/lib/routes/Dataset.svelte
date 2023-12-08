@@ -29,7 +29,7 @@
               class="flex text-blue-500 leading-none gap-1 items-center"
               href={inject(routes.DumpIndex, { dumpUrl: params.dumpUrl })}
             >
-            <ArrowBack fill="currentColor" class="h-[1.25em]" /> Viendo {data.title}
+              <ArrowBack fill="currentColor" class="h-[1.25em]" /> Viendo {data.title}
             </a>
           </small>
           <h1 class="font-bold text-3xl">{dataset.title}</h1>
@@ -43,43 +43,45 @@
                 e.distributionIdentifier === dist.identifier,
             )}
             <li class="flex px-6 py-5 justify-between items-center">
-              {#if error}
-                {dist.title}
-                (no está en este dump porque hubo un error al bajarlo)
-              {:else}
-                <div>
-                  <h3>
-                    {dist.title}
-                    {#if dist.format}
-                      <span
-                        class="border border-current text-blue-800 relative inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full ml-1"
-                      >
-                        <span>{dist.format}</span>
-                      </span>
-                    {/if}
-                  </h3>
-                  {#if dist.fileName}
-                    <small>{dist.fileName}</small>
+              <div>
+                <h3>
+                  {dist.title}
+                  {#if dist.format}
+                    <span
+                      class="border border-current text-blue-800 relative inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full ml-1"
+                    >
+                      <span>{dist.format}</span>
+                    </span>
                   {/if}
-                </div>
-                <div class="flex flex-col items-center">
+                </h3>
+                {#if error}
+                  <small class="block text-red-700">
+                    No está en este dump porque hubo un error al descargarlo :(
+                  </small>
+                {/if}
+                {#if dist.fileName}
+                  <small>{dist.fileName}</small>
+                {/if}
+              </div>
+              <div class="flex flex-col items-center">
+                {#if !error}
                   <button
                     type="button"
                     class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-700 focus:shadow-outline focus:outline-none"
                     on:click={() => downloadFile(url, dataset.identifier, dist)}
                     >Descargar</button
                   >
-                  <a
-                    class="flex items-center leading-none text-gray-600 gap-1 pt-2"
-                    href={dist.downloadURL}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <ExternalLink fill="currentColor" class="h-4" />
-                    Fuente
-                  </a>
-                </div>
-              {/if}
+                {/if}
+                <a
+                  class="flex items-center leading-none text-gray-600 gap-1 pt-2"
+                  href={dist.downloadURL}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <ExternalLink fill="currentColor" class="h-4" />
+                  Fuente
+                </a>
+              </div>
             </li>
           {/each}
         </ul>

@@ -6,7 +6,7 @@ export const zPublisher = z.object({
 });
 export const zDistribution = z.object({
   identifier: z.string(),
-  downloadURL: z.string(),
+  downloadURL: z.string().optional(),
   fileName: z.string().optional(),
   format: z.string().optional(),
   title: z.string(),
@@ -28,7 +28,7 @@ export const zData = z.object({
 });
 
 export const zError = z.object({
-  url: z.string(),
+  url: z.string().optional(),
   datasetIdentifier: z.string(),
   distributionIdentifier: z.string(),
   kind: z.enum(["generic_error", "http_error", "infinite_redirect"]),

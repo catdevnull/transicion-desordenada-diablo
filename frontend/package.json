@@ -23,7 +23,8 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
-    "vite-plugin-svelte-svg": "^2.3.0"
+    "vite-plugin-svelte-svg": "^2.3.0",
+    "common": "workspace:"
   },
   "dependencies": {
     "eva-icons": "^1.1.3",

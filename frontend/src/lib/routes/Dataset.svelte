@@ -1,13 +1,13 @@
 <script lang="ts">
   import ArrowBack from "eva-icons/outline/svg/arrow-back-outline.svg?component";
   import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
-  import { downloadFile, fetchData, fetchErrors } from "../dump";
+  import { downloadFile, fetchData, fetchErrors } from "../portal";
   import NotFound from "./NotFound.svelte";
   import { inject } from "regexparam";
   import { routes } from "../router";
 
-  export let params: { dumpUrl: string; id: string };
-  const url = decodeURIComponent(params.dumpUrl);
+  export let params: { portalUrl: string; id: string };
+  const url = decodeURIComponent(params.portalUrl);
 
   const data = Promise.all([fetchData(url), fetchErrors(url)]).then(
     ([data, errors]) => ({ data, errors }),
@@ -27,7 +27,7 @@
           <small>
             <a
               class="flex text-blue-500 leading-none gap-1 items-center"
-              href={inject(routes.DumpIndex, { dumpUrl: params.dumpUrl })}
+              href={inject(routes.Portal, { portalUrl: params.portalUrl })}
             >
               <ArrowBack fill="currentColor" class="h-[1.25em]" /> Viendo {data.title}
             </a>
@@ -70,7 +70,8 @@
                 </h3>
                 {#if error}
                   <small class="block text-red-700">
-                    No está en este dump porque hubo un error al descargarlo :(
+                    No está en este archivo porque hubo un error al descargarlo
+                    :(
                   </small>
                 {/if}
                 {#if dist.fileName}

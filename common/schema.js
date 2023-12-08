@@ -12,7 +12,7 @@ export const zDistribution = z.object({
   title: z.string(),
   description: z.string().optional(),
 });
-export type Distribution = z.infer<typeof zDistribution>;
+/** @typedef {z.infer<typeof zDistribution>} Distribution */
 export const zDataset = z.object({
   identifier: z.string(),
   title: z.string(),
@@ -21,7 +21,7 @@ export const zDataset = z.object({
   distribution: z.array(zDistribution),
   landingPage: z.string().optional(),
 });
-export type Dataset = z.infer<typeof zDataset>;
+/** @typedef {z.infer<typeof zDataset>} Dataset */
 export const zData = z.object({
   title: z.string(),
   description: z.string(),
@@ -36,3 +36,15 @@ export const zError = z.object({
   kind: z.enum(["generic_error", "http_error", "infinite_redirect"]),
   error: z.string().optional(),
 });
+
+export const zDumpMetadata = z.object({
+  sites: z.array(
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      url: z.string(),
+      path: z.string(),
+    })
+  ),
+});
+/** @typedef {z.infer<typeof zDumpMetadata>} DumpMetadata */

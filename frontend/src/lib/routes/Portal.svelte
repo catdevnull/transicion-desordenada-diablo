@@ -2,12 +2,12 @@
   import { inject } from "regexparam";
   import ArrowForward from "eva-icons/outline/svg/arrow-forward-outline.svg?component";
   import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
-  import { fetchData, fetchErrors } from "../dump";
+  import { fetchData, fetchErrors } from "../portal";
   import { routes } from "../router";
-  import type { Dataset } from "../schema";
+  import type { Dataset } from "common/schema";
 
-  export let params: { dumpUrl: string };
-  const url = decodeURIComponent(params.dumpUrl);
+  export let params: { portalUrl: string };
+  const url = decodeURIComponent(params.portalUrl);
 
   const data = Promise.all([fetchData(url), fetchErrors(url)]).then(
     ([data, errors]) => ({ data, errors }),
@@ -70,7 +70,7 @@
       <ul class="divide-y divide-gray-100">
         {#each filterDatasets(data.dataset, query) as dataset}
           {@const datasetLink = inject(routes.Dataset, {
-            dumpUrl: params.dumpUrl,
+            portalUrl: params.portalUrl,
             id: dataset.identifier,
           })}
           <li>
@@ -92,7 +92,7 @@
         {/each}
       </ul>
     {:catch error}
-      Hubo un error intenando cargar este dump. <pre>{error}</pre>
+      Hubo un error intenando cargar este portal archivado. <pre>{error}</pre>
     {/await}
   </div>
 </main>

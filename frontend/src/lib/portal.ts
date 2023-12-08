@@ -1,5 +1,5 @@
 import streamSaver from "streamsaver";
-import { zData, type Distribution, zError } from "./schema";
+import { zData, type Distribution, zError } from "common/schema";
 
 export async function downloadFile(
   dataPath: string,

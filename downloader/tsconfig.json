@@ -13,5 +13,11 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16"
-  }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.js",
+    // https://github.com/microsoft/TypeScript/issues/33136#issuecomment-578699134
+    "../common/**/*.js"
+  ]
 }

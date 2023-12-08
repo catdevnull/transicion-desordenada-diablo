@@ -4,7 +4,7 @@ import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
 import pLimit from "p-limit";
 
-const sitiosPorDefecto = [
+export const sitiosPorDefecto = [
   "https://datos.gob.ar/data.json",
   "http://datos.energia.gob.ar/data.json",
   "https://datos.magyp.gob.ar/data.json",
@@ -63,7 +63,7 @@ const sitiosPorDefecto = [
 setGlobalDispatcher(
   new Agent({
     pipelining: 0,
-  }),
+  })
 );
 
 /** key es host
@@ -85,29 +85,27 @@ let jsonUrls = process.argv.slice(2);
 if (jsonUrls.length < 1) {
   jsonUrls = sitiosPorDefecto;
 }
-writeFile("readme.txt", generateReadme(jsonUrls));
 for (const url of jsonUrls)
   downloadFromData(url).catch((error) =>
-    console.error(`${url} FALLÓ CON`, error),
+    console.error(`${url} FALLÓ CON`, error)
   );
 
 /**
- * @param {string} jsonUrlString
+ * @param {string} jsonUrl
  */
-async function downloadFromData(jsonUrlString) {
-  const jsonUrl = new URL(jsonUrlString);
-  const outputPath = `${jsonUrl.host}${jsonUrl.pathname}`.replaceAll("/", "_");
+async function downloadFromData(jsonUrl) {
+  const outputPath = generateOutputPath(jsonUrl);
+  const jsonRes = await fetch(jsonUrl);
+  // prettier-ignore
+  const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
+  await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
+
   await mkdir(outputPath, { recursive: true });
+  await writeFile(join(outputPath, "url.txt"), jsonUrl);
   const errorFile = (
     await open(join(outputPath, "errors.jsonl"), "w")
   ).createWriteStream();
-
   try {
-    const jsonRes = await fetch(jsonUrl);
-    // prettier-ignore
-    const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
-    await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
-
     /** @type {DownloadJob[]} */
     const jobs = parsed.dataset.flatMap((dataset) =>
       dataset.distribution
@@ -117,7 +115,7 @@ async function downloadFromData(jsonUrlString) {
             return true;
           } catch (error) {
             errorFile.write(
-              JSON.stringify(encodeError({ dataset, dist }, error)) + "\n",
+              JSON.stringify(encodeError({ dataset, dist }, error)) + "\n"
             );
             return false;
           }
@@ -128,7 +126,7 @@ async function downloadFromData(jsonUrlString) {
           url: patchUrl(new URL(dist.downloadURL)),
           outputPath,
           attempts: 0,
-        })),
+        }))
     );
     const totalJobs = jobs.length;
     let nFinished = 0;
@@ -160,7 +158,7 @@ async function downloadFromData(jsonUrlString) {
     process.stderr.write(`info[${outputPath}]: 0/${totalJobs} done\n`);
     const interval = setInterval(() => {
       process.stderr.write(
-        `info[${outputPath}]: ${nFinished}/${totalJobs} done\n`,
+        `info[${outputPath}]: ${nFinished}/${totalJobs} done\n`
       );
     }, 30000);
     await Promise.all(promises);
@@ -170,6 +168,15 @@ async function downloadFromData(jsonUrlString) {
   } finally {
     errorFile.close();
   }
+}
+
+/**
+ * @param {string} jsonUrlString
+ */
+export function generateOutputPath(jsonUrlString) {
+  const jsonUrl = new URL(jsonUrlString);
+  const outputPath = `${jsonUrl.host}${jsonUrl.pathname}`.replaceAll("/", "_");
+  return outputPath;
 }
 
 /**
@@ -228,12 +235,12 @@ async function downloadDist({ dist, dataset, url, outputPath }) {
   const fileDirPath = join(
     outputPath,
     sanitizeSuffix(dataset.identifier),
-    sanitizeSuffix(dist.identifier),
+    sanitizeSuffix(dist.identifier)
   );
   await mkdir(fileDirPath, { recursive: true });
   const filePath = join(
     fileDirPath,
-    sanitizeSuffix(dist.fileName || dist.identifier),
+    sanitizeSuffix(dist.fileName || dist.identifier)
   );
 
   if (!res.body) throw new Error("no body");
@@ -272,11 +279,11 @@ function sanitizeSuffix(path) {
  */
 function chequearIdsDuplicados(jobs, id) {
   const duplicated = hasDuplicates(
-    jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`),
+    jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`)
   );
   if (duplicated) {
     console.error(
-      `ADVERTENCIA[${id}]: ¡encontré duplicados! es posible que se pisen archivos entre si`,
+      `ADVERTENCIA[${id}]: ¡encontré duplicados! es posible que se pisen archivos entre si`
     );
   }
 }
@@ -333,46 +340,4 @@ function shuffleArray(array) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
-}
-
-/**
- * @param {string[]} portales
- */
-function generateReadme(portales) {
-  // basado en el readme de Patricio
-  return `Dumps de Portales de Datos Abiertos de la República Argentina
-=============================================================
-
-El zip contiene todo lo que se pudo descargar de los portales seleccionados, que fueron:
-${portales.map((p) => `- ${p}`).join("\n")}
-
-La carpeta está ordenada en subcarpetas cuyo nombre corresponde al ID del dataset/distribución del portal. De esta forma, 
-leyendo el data.json se puede programaticamente y de manera simple volver a mapear qué archivo le corresponde a cada
-distribución.
-
-Formato:
-
-- {url de data.json sin protocolo y con / reemplazado por _}/
-  - data.json
-  - errors.jsonl: archivo con todos los errores que se obtuvieron al intentar descargar todo.
-  - {identifier de dataset}/
-    - {identifier de distribution}/
-      - {fileName (o, si no existe, identifier de distribution)}
-
-Ejemplo:
-
-- datos.gob.ar_data.json/
-  - data.json
-  - errors.jsonl
-  - turismo_fbc269ea-5f71-45b6-b70c-8eb38a03b8db/
-    - turismo_0774a0bb-71c2-44d7-9ea6-780e6bd06d50/
-      - cruceristas-por-puerto-residencia-desagregado-por-pais-mes.csv
-    - ...
-  - energia_0d4a18ee-9371-439a-8a94-4f53a9822664/
-    - energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866/
-      - energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866 (este archivo no tiene fileName en el data.json, entonces se reutiliza el identifier)
-  - ...
-
-Este dump fue generado con transicion-desordenada-diablo: https://gitea.nulo.in/Nulo/transicion-desordenada-diablo
-`;
 }

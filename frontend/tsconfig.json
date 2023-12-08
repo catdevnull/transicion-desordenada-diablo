@@ -15,6 +15,12 @@
     "checkJs": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.svelte",
+    // https://github.com/microsoft/TypeScript/issues/33136#issuecomment-578699134
+    "../common/**/*.js"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

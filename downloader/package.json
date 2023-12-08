@@ -1,5 +1,5 @@
 {
-  "name": "js",
+  "name": "downloader",
   "type": "module",
   "version": "1.0.0",
   "description": "",
@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "p-limit": "^5.0.0",
-    "undici": "^5.28.0"
+    "undici": "^5.28.0",
+    "common": "workspace:"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",

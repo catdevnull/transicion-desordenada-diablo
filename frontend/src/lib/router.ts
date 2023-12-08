@@ -4,8 +4,8 @@ import { writable } from "svelte/store";
 export const routes = {
   Home: "/",
   Dump: "/dump/:dumpUrl",
-  Portal: "/portal/:portalUrl",
-  Dataset: "/portal/:portalUrl/dataset/:id",
+  Portal: "/dump/:dumpUrl/:portal",
+  Dataset: "/dump/:dumpUrl/:portal/dataset/:id",
 };
 
 export type ComponentType = "NotFound" | keyof typeof routes;

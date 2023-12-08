@@ -5,9 +5,9 @@
   import { routes } from "../router";
 
   export let params: { dumpUrl: string };
-  const url = decodeURIComponent(params.dumpUrl);
+  $: url = decodeURIComponent(params.dumpUrl);
 
-  const metadataPromise = fetchDumpMetadata(url);
+  $: metadataPromise = fetchDumpMetadata(url);
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -43,7 +43,8 @@
       <ul class="divide-y divide-gray-100">
         {#each metadata.sites as site}
           {@const portalLink = inject(routes.Portal, {
-            portalUrl: encodeURIComponent(`${url}/${site.path}`),
+            dumpUrl: params.dumpUrl,
+            portal: site.path,
           })}
           <li>
             <div class="flex px-6 py-5 justify-between gap-3">

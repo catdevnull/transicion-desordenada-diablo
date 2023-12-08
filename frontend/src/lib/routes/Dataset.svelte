@@ -5,16 +5,19 @@
   import NotFound from "./NotFound.svelte";
   import { inject } from "regexparam";
   import { routes } from "../router";
+  import Nav from "../nav/Nav.svelte";
 
-  export let params: { portalUrl: string; id: string };
-  const url = decodeURIComponent(params.portalUrl);
+  export let params: { dumpUrl: string; portal: string; id: string };
+  $: url = decodeURIComponent(params.dumpUrl) + "/" + params.portal;
 
-  const data = Promise.all([fetchData(url), fetchErrors(url)]).then(
+  $: data = Promise.all([fetchData(url), fetchErrors(url)]).then(
     ([data, errors]) => ({ data, errors }),
   );
 </script>
 
 <main class="mx-auto max-w-3xl">
+  <Nav {params} />
+
   <div class="rounded-lg border bg-white m-2">
     {#await data}
       <p class="p-6">Cargando dataset...</p>
@@ -27,7 +30,10 @@
           <small>
             <a
               class="flex text-blue-500 leading-none gap-1 items-center"
-              href={inject(routes.Portal, { portalUrl: params.portalUrl })}
+              href={inject(routes.Portal, {
+                dumpUrl: params.dumpUrl,
+                portal: params.portal,
+              })}
             >
               <ArrowBack fill="currentColor" class="h-[1.25em]" /> Viendo {data.title}
             </a>

@@ -5,11 +5,12 @@
   import { fetchData, fetchErrors } from "../fetch";
   import { routes } from "../router";
   import type { Dataset } from "common/schema";
+  import Nav from "../nav/Nav.svelte";
 
-  export let params: { portalUrl: string };
-  const url = decodeURIComponent(params.portalUrl);
+  export let params: { dumpUrl: string; portal: string };
+  $: url = `${decodeURIComponent(params.dumpUrl)}/${params.portal}`;
 
-  const data = Promise.all([fetchData(url), fetchErrors(url)]).then(
+  $: data = Promise.all([fetchData(url), fetchErrors(url)]).then(
     ([data, errors]) => ({ data, errors }),
   );
 
@@ -29,6 +30,8 @@
 </script>
 
 <main class="mx-auto max-w-3xl">
+  <Nav {params} />
+
   <div class="rounded-lg border bg-white m-2">
     {#await data}
       <p class="p-6">Cargando..</p>
@@ -70,7 +73,8 @@
       <ul class="divide-y divide-gray-100">
         {#each filterDatasets(data.dataset, query) as dataset}
           {@const datasetLink = inject(routes.Dataset, {
-            portalUrl: params.portalUrl,
+            dumpUrl: params.dumpUrl,
+            portal: params.portal,
             id: dataset.identifier,
           })}
           <li>

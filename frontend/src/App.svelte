@@ -15,8 +15,10 @@
     else if (route === "Dump") return Dump;
   }
 
-  $: component = chooseComponent($currentRoute.component) as any;
-  $: params = $currentRoute.params as any;
+  $: r = {
+    component: chooseComponent($currentRoute.component) as any,
+    params: $currentRoute.params as any,
+  };
 </script>
 
-<svelte:component this={component} {params} />
+<svelte:component this={r.component} params={r.params} />

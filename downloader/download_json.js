@@ -98,9 +98,8 @@ async function downloadFromData(jsonUrl) {
   const jsonRes = await fetch(jsonUrl);
   // prettier-ignore
   const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
-  await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
-
   await mkdir(outputPath, { recursive: true });
+  await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
   await writeFile(join(outputPath, "url.txt"), jsonUrl);
   const errorFile = (
     await open(join(outputPath, "errors.jsonl"), "w")

@@ -20,11 +20,24 @@
     return url;
   }
 
+  function processStringForSearch(str: string): string {
+    return str
+      .toLowerCase()
+      .replaceAll("á", "a")
+      .replaceAll("é", "e")
+      .replaceAll("í", "i")
+      .replaceAll("ó", "o")
+      .replaceAll("ú", "u")
+      .replaceAll("ñ", "n");
+  }
+
   let query: string = "";
   function filterDatasets(datasets: Dataset[], query: string): Dataset[] {
+    const q = processStringForSearch(query);
     return datasets.filter(
       (dataset) =>
-        dataset.identifier.includes(query) || dataset.title.includes(query),
+        processStringForSearch(dataset.identifier).includes(q) ||
+        processStringForSearch(dataset.title).includes(q),
     );
   }
 </script>

@@ -33,7 +33,7 @@
     {#await data}
       <p class="p-6">Cargando..</p>
     {:then { data, errors }}
-      <header class="py-5 px-6 border-b border-b-gray-200">
+      <header class="py-5 px-6 border-b border-b-gray-200 leading-none">
         <small>
           Viendo portal archivado de
           <a

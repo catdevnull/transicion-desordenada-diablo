@@ -1,18 +1,13 @@
 <script lang="ts">
   import { inject } from "regexparam";
   import ChevronRight from "eva-icons/outline/svg/chevron-right-outline.svg?component";
-  import { routes } from "../router";
+  import { generateDumpName, routes } from "../router";
   import Portal from "../routes/Portal.svelte";
 
   export let params:
     | { dumpUrl: string }
     | { dumpUrl: string; portal: string }
     | { dumpUrl: string; portal: string; id: string };
-
-  function generateDumpName(dumpUrl: string) {
-    const clean = decodeURIComponent(dumpUrl).replace(/\/+$/, "");
-    return clean.slice(clean.lastIndexOf("/") + 1);
-  }
 
   $: dumpName = generateDumpName(params.dumpUrl);
 </script>

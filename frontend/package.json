@@ -11,9 +11,11 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@tailwindcss/typography": "^0.5.10",
     "@tsconfig/svelte": "^5.0.2",
     "@types/streamsaver": "^2.0.4",
     "autoprefixer": "^10.4.16",
+    "common": "workspace:",
     "postcss": "^8.4.32",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.9",
@@ -23,8 +25,7 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
-    "vite-plugin-svelte-svg": "^2.3.0",
-    "common": "workspace:"
+    "vite-plugin-svelte-svg": "^2.3.0"
   },
   "dependencies": {
     "eva-icons": "^1.1.3",

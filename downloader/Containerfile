@@ -1,13 +1,13 @@
 
 FROM docker.io/alpine:3.18 as build
-RUN apk add --no-cache npm
-RUN npm install -g esbuild pnpm
+RUN apk add --no-cache npm \
+ && npm install -g esbuild pnpm
 
 COPY .. /tmp/build/
 WORKDIR /tmp/build/downloader
-RUN pnpm install
-RUN esbuild --bundle --format=cjs --platform=node --outfile=download_json.build.js --sourcemap=inline download_json.js
-RUN esbuild --bundle --format=cjs --platform=node --outfile=generate_dump_metadata.build.js --sourcemap=inline generate_dump_metadata.js
+RUN pnpm install \
+ && esbuild --bundle --format=cjs --platform=node --outfile=download_json.build.js --sourcemap=inline download_json.js \
+ && esbuild --bundle --format=cjs --platform=node --outfile=generate_dump_metadata.build.js --sourcemap=inline generate_dump_metadata.js
 
 FROM docker.io/alpine:3.18
 RUN apk add --no-cache nodejs-current tini

@@ -68,7 +68,12 @@
                     </span>
                   {/if}
                 </h3>
-                {#if error}
+                {#if !dist.downloadURL}
+                  <small class="block text-red-700">
+                    No está en este archivo porque el link de descarga estaba
+                    roto en la fuente al momento de descargarlo :(
+                  </small>
+                {:else if error}
                   <small class="block text-red-700">
                     No está en este archivo porque hubo un error al descargarlo
                     :(
@@ -87,15 +92,17 @@
                     >Descargar</button
                   >
                 {/if}
-                <a
-                  class="flex items-center leading-none text-gray-600 gap-1 pt-2"
-                  href={dist.downloadURL}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <ExternalLink fill="currentColor" class="h-4" />
-                  Fuente
-                </a>
+                {#if dist.downloadURL}
+                  <a
+                    class="flex items-center leading-none text-gray-600 gap-1 pt-2"
+                    href={dist.downloadURL}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <ExternalLink fill="currentColor" class="h-4" />
+                    Fuente
+                  </a>
+                {/if}
               </div>
             </li>
           {/each}

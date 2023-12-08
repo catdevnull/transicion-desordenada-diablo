@@ -26,6 +26,15 @@
       {:else}
         <header class="py-5 px-6 border-b border-b-gray-200">
           <small>
+            Viendo dataset de
+            <a
+              class="underline text-blue-500"
+              target="_blank"
+              rel="noopener"
+              href={url}>{url}</a
+            >
+          </small>
+          <small>
             <a
               class="flex text-blue-500 leading-none gap-1 items-center"
               href={inject(routes.DumpIndex, { dumpUrl: params.dumpUrl })}

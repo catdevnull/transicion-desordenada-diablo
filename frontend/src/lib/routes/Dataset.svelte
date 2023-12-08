@@ -31,7 +31,6 @@
               target="_blank"
               rel="noopener"
               href={inject(routes.DumpIndex, { dumpUrl: params.dumpUrl })}
-              on:click|preventDefault={() => history.back()}
             >
               <ArrowBack fill="currentColor" class="h-[1.25em]" />
               Volver a dataset {data.title}

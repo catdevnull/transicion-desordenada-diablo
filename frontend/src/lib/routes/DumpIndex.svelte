@@ -1,7 +1,8 @@
 <script lang="ts">
   import { inject } from "regexparam";
   import ArrowForward from "eva-icons/outline/svg/arrow-forward-outline.svg?component";
-  import { downloadFile, fetchData, fetchErrors } from "../dump";
+  import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
+  import { fetchData, fetchErrors } from "../dump";
   import { routes } from "../router";
 
   export let params: { dumpUrl: string };
@@ -10,6 +11,12 @@
   const data = Promise.all([fetchData(url), fetchErrors(url)]).then(
     ([data, errors]) => ({ data, errors }),
   );
+
+  function arreglarHomepageUrl(url: string): string {
+    if (!url.startsWith("http://") && !url.startsWith("https://"))
+      return `https://${url}`;
+    return url;
+  }
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -19,7 +26,7 @@
     {:then { data, errors }}
       <header class="py-5 px-6 border-b border-b-gray-200">
         <small>
-          Viendo dataset de
+          Viendo portal archivado de
           <a
             class="underline text-blue-500"
             target="_blank"
@@ -29,6 +36,17 @@
         </small>
         <h1 class="font-bold text-3xl">{data.title}</h1>
         <p class="text-xl">{data.description}</p>
+        {#if data.homepage}
+          <a
+            class="flex items-center leading-none text-gray-600 gap-1 pt-2"
+            href={arreglarHomepageUrl(data.homepage)}
+            target="_blank"
+            rel="noopener"
+          >
+            <ExternalLink fill="currentColor" class="h-4" />
+            Fuente
+          </a>
+        {/if}
       </header>
       <ul class="divide-y divide-gray-100">
         {#each data.dataset as dataset}

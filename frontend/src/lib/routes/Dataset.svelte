@@ -5,7 +5,6 @@
   import NotFound from "./NotFound.svelte";
   import { inject } from "regexparam";
   import { routes } from "../router";
-  import DumpIndex from "./DumpIndex.svelte";
 
   export let params: { dumpUrl: string; id: string };
   const url = decodeURIComponent(params.dumpUrl);
@@ -26,7 +25,7 @@
       {:else}
         <header class="py-5 px-6 border-b border-b-gray-200">
           <small>
-            Viendo dataset de
+            Viendo portal archivado de
             <a
               class="underline text-blue-500"
               target="_blank"

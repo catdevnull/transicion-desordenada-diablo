@@ -6,21 +6,25 @@ export async function downloadFile(
   datasetId: string,
   dist: Distribution,
 ) {
+  if (!dist.downloadURL) throw new Error("no downloadURL");
   const outputS = streamSaver.createWriteStream(
     dist.downloadURL.slice(dist.downloadURL.lastIndexOf("/") + 1),
   );
-  const res = await fetch(
+  const res = await fetchGzipped(
     `${dataPath}/${datasetId}/${dist.identifier}/${
       dist.fileName || dist.identifier
     }.gz`,
   );
-  const ds = new DecompressionStream("gzip");
-  const decompressedStream = res.body!.pipeThrough(ds);
-  await decompressedStream.pipeTo(outputS);
+  await res.body!.pipeTo(outputS);
 }
 
 async function fetchGzipped(url: string): Promise<Response> {
-  const res = await fetch(url);
+  let res = await fetch(url);
+  if (res.status === 404 && url.endsWith(".gz")) {
+    // probar cargando el archivo no comprimido
+    res = await fetch(url.slice(0, url.length - ".gz".length));
+    return res;
+  }
   const ds = new DecompressionStream("gzip");
   const decompressedStream = res.body!.pipeThrough(ds);
   const resD = new Response(decompressedStream);

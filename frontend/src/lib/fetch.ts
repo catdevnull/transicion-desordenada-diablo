@@ -1,5 +1,5 @@
 import streamSaver from "streamsaver";
-import { zData, type Distribution, zError } from "common/schema";
+import { zData, type Distribution, zError, zDumpMetadata } from "common/schema";
 
 export async function downloadFile(
   dataPath: string,
@@ -48,10 +48,15 @@ async function loadGzippedJson(url: string): Promise<unknown> {
   return json;
 }
 
-export async function fetchData(url: string) {
-  const json = await loadGzippedJson(`${url}/data.json.gz`);
+export async function fetchData(portalUrl: string) {
+  const json = await loadGzippedJson(`${portalUrl}/data.json.gz`);
   if (import.meta.env.DEV) console.debug(json);
   return zData.parse(json);
+}
+export async function fetchDumpMetadata(dumpUrl: string) {
+  const json = await loadGzippedJson(`${dumpUrl}/dump-metadata.json.gz`);
+  if (import.meta.env.DEV) console.debug(json);
+  return zDumpMetadata.parse(json);
 }
 export async function fetchErrors(url: string) {
   const res = await fetchGzipped(`${url}/errors.jsonl.gz`);

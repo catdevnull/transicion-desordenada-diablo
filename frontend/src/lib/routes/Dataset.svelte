@@ -1,7 +1,7 @@
 <script lang="ts">
   import ArrowBack from "eva-icons/outline/svg/arrow-back-outline.svg?component";
   import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
-  import { downloadFile, fetchData, fetchErrors } from "../portal";
+  import { downloadFile, fetchData, fetchErrors } from "../fetch";
   import NotFound from "./NotFound.svelte";
   import { inject } from "regexparam";
   import { routes } from "../router";

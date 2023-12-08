@@ -2,7 +2,7 @@
   import { inject } from "regexparam";
   import ArrowForward from "eva-icons/outline/svg/arrow-forward-outline.svg?component";
   import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
-  import { fetchData, fetchErrors } from "../portal";
+  import { fetchData, fetchErrors } from "../fetch";
   import { routes } from "../router";
   import type { Dataset } from "common/schema";
 

@@ -2,11 +2,12 @@ import navaid, { type Params } from "navaid";
 import { writable } from "svelte/store";
 
 export const routes = {
+  Dump: "/dump/:dumpUrl",
   Portal: "/portal/:portalUrl",
   Dataset: "/portal/:portalUrl/dataset/:id",
 };
 
-export type ComponentType = "NotFound" | "Portal" | "Dataset";
+export type ComponentType = "NotFound" | keyof typeof routes;
 
 type Route = {
   component: ComponentType;
@@ -17,10 +18,9 @@ export const currentRoute = writable<Route>();
 export const router = navaid(undefined, () =>
   currentRoute.set({ component: "NotFound" }),
 );
-router.on(routes.Portal, (params) =>
-  currentRoute.set({ component: "Portal", params }),
-);
-router.on(routes.Dataset, (params) =>
-  currentRoute.set({ component: "Dataset", params }),
-);
+for (const [component, path] of Object.entries(routes)) {
+  router.on(path, (params) =>
+    currentRoute.set({ component: component as keyof typeof routes, params }),
+  );
+}
 router.listen();

@@ -29,6 +29,15 @@ docker run --rm -it -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-di
 # descarga datos.gob.ar
 ```
 
+## terminar dump
+
+```
+# generar dump-metadata.json (útil para el frontend) y readme.txt
+node generate_dump_metadata.js data/
+# comprimir todo excepto readme.txt
+pigz -1r data/*/
+```
+
 ## formato de repo guardado
 
 - `{url de data.json sin protocolo y con / reemplazado por _}/`
@@ -44,10 +53,10 @@ docker run --rm -it -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-di
   - `data.json`
   - `errors.jsonl`
   - `turismo_fbc269ea-5f71-45b6-b70c-8eb38a03b8db/`
-    - `turismo_0774a0bb-71c2-44d7-9ea6-780e6bd06d50/`
+      - `turismo_0774a0bb-71c2-44d7-9ea6-780e6bd06d50/`
       - `cruceristas-por-puerto-residencia-desagregado-por-pais-mes.csv`
     - ...
   - `energia_0d4a18ee-9371-439a-8a94-4f53a9822664/`
-    - `energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866/`
-      - `energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866` (este archivo no tiene fileName en el data.json, entonces se reutiliza el `identifier`)
+       - `energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866/`
+       - `energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866` (este archivo no tiene fileName en el data.json, entonces se reutiliza el `identifier`)
   - ...

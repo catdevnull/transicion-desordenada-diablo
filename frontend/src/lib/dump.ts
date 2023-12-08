@@ -26,9 +26,22 @@ async function fetchGzipped(url: string): Promise<Response> {
   const resD = new Response(decompressedStream);
   return resD;
 }
+let cachedGzippedJson = new Map<string, { date: Date; data: unknown }>();
+
 async function loadGzippedJson(url: string): Promise<unknown> {
+  const cachedEntry = cachedGzippedJson.get(url);
+  if (cachedEntry) {
+    if (+cachedEntry.date + 10 * 60 * 1000 > +new Date()) {
+      return cachedEntry.data;
+    } else {
+      cachedGzippedJson.delete(url);
+    }
+  }
+
   const res = await fetchGzipped(url);
-  return await res.json();
+  const json = await res.json();
+  cachedGzippedJson.set(url, { date: new Date(), data: json });
+  return json;
 }
 
 const endpoint = "http://localhost:8081";

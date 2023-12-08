@@ -34,7 +34,7 @@
       <li>
         <a
           href={inject(routes.Portal, params)}
-          class="inline-flex items-center px-2 py-1.5 space-x-1.5 font-normal rounded-md hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
+          class="inline-flex items-center px-2 py-1.5 space-x-1.5 font-normal rounded-md hover:bg-neutral-100 hover:text-neutral-900"
         >
           <span>{params.portal}</span>
         </a>
@@ -45,7 +45,7 @@
       <li>
         <a
           href={inject(routes.Dataset, params)}
-          class="inline-flex items-center px-2 py-1.5 space-x-1.5 font-normal rounded-md hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
+          class="inline-flex items-center px-2 py-1.5 space-x-1.5 font-normal rounded-md hover:bg-neutral-100 hover:text-neutral-900"
         >
           <span>{params.id}</span>
         </a>

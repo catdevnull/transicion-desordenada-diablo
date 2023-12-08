@@ -85,7 +85,7 @@ let jsonUrls = process.argv.slice(2);
 if (jsonUrls.length < 1) {
   jsonUrls = sitiosPorDefecto;
 }
-await writeFile("readme.txt", generateReadme(jsonUrls));
+writeFile("readme.txt", generateReadme(jsonUrls));
 for (const url of jsonUrls)
   downloadFromData(url).catch((error) =>
     console.error(`${url} FALLÓ CON`, error),

@@ -48,8 +48,6 @@ async function loadGzippedJson(url: string): Promise<unknown> {
   return json;
 }
 
-const endpoint = "http://localhost:8081";
-export const gobData = `${endpoint}/datos.gob.ar_data.json`;
 export async function fetchData(url: string) {
   const json = await loadGzippedJson(`${url}/data.json.gz`);
   if (import.meta.env.DEV) console.debug(json);

@@ -19,7 +19,9 @@ export const zDataset = z.object({
   description: z.string(),
   publisher: zPublisher,
   distribution: z.array(zDistribution),
+  landingPage: z.string().optional(),
 });
+export type Dataset = z.infer<typeof zDataset>;
 export const zData = z.object({
   title: z.string(),
   description: z.string(),

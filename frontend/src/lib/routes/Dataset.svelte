@@ -34,6 +34,20 @@
           </small>
           <h1 class="font-bold text-3xl">{dataset.title}</h1>
           <p class="text-xl">{dataset.description}</p>
+          <!--
+            lo saqué porque aún antes de que venga la motosierra estos links no funcionan...
+            entonces no quiero dar la falsa impresión de que empezaron a bajar cosas cuando no es el caso.
+            {#if dataset.landingPage}
+            <a
+              class="flex items-center leading-none text-gray-600 gap-1 pt-2"
+              href={dataset.landingPage}
+              target="_blank"
+              rel="noopener"
+            >
+              <ExternalLink fill="currentColor" class="h-4" />
+              Fuente
+            </a>
+          {/if} -->
         </header>
         <ul class="divide-y divide-gray-100">
           {#each dataset.distribution as dist}

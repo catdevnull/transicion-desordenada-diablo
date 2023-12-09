@@ -30,19 +30,19 @@ let urls = process.argv.slice(2);
 if (urls.length < 1) {
   urls = targetsPorDefecto;
 }
-/** @typedef {{type: "data.json" | "ckan"; url: string;}} Target */
+/** @typedef {{type: "datajson" | "ckan"; url: string;}} Target */
 
 /** @type {Target[]} */
 const targets = urls.map((url) => {
   if (url.startsWith("datajson+")) {
-    return { type: "data.json", url: url.slice("datajson+".length) };
+    return { type: "datajson", url: url.slice("datajson+".length) };
   } else if (url.startsWith("ckan+")) {
     return { type: "ckan", url: url.slice("ckan+".length) };
-  } else return { type: "data.json", url };
+  } else return { type: "datajson", url };
 });
 for (const target of targets)
   downloadFromData(target).catch((error) =>
-    console.error(`${target} FALLÓ CON`, error)
+    console.error(`${target.type}+${target.url} FALLÓ CON`, error)
   );
 
 /**
@@ -53,7 +53,7 @@ async function downloadFromData(target) {
   let json;
   if (target.type === "ckan") {
     json = await generateDataJsonFromCkan(target.url);
-  } else if (target.type === "data.json") {
+  } else if (target.type === "datajson") {
     const jsonRes = await fetch(target.url);
     json = await jsonRes.json();
   }

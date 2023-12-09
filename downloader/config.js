@@ -18,6 +18,7 @@ export const targetsPorDefecto = [
   "datajson+https://datosabiertos.desarrollosocial.gob.ar/data.json",
   "datajson+http://datos.mindef.gov.ar/data.json",
   "datajson+http://datos.legislatura.gob.ar/data.json",
+  "datajson+https://datos.arsat.com.ar/data.json",
 
   "datajson+https://monitoreo.datos.gob.ar/catalog/jgm/data.json",
   // "datajson+https://datosabiertos.enacom.gob.ar/data.json",

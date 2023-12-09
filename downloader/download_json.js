@@ -4,6 +4,7 @@ import { join, normalize } from "node:path";
 import pLimit from "p-limit";
 import { targetsPorDefecto, userAgent } from "./config.js";
 import { generateDataJsonFromCkan } from "./ckan_to_datajson.js";
+import { zData } from "common/schema.js";
 
 setGlobalDispatcher(
   new Agent({
@@ -58,10 +59,10 @@ async function downloadFromData(target) {
     json = await jsonRes.json();
   }
 
-  // prettier-ignore
-  const parsed = /** @type {{ dataset: Dataset[] }} */(json)
+  const parsed = zData.parse(json);
+
   await mkdir(outputPath, { recursive: true });
-  await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
+  await writeFile(join(outputPath, "data.json"), JSON.stringify(json));
   await writeFile(join(outputPath, "url.txt"), `${target.type}+${target.url}`);
   const errorFile = (
     await open(join(outputPath, "errors.jsonl"), "w")
@@ -70,17 +71,23 @@ async function downloadFromData(target) {
     /** @type {DownloadJob[]} */
     const jobs = parsed.dataset.flatMap((dataset) =>
       dataset.distribution
-        .filter((dist) => {
-          try {
-            patchUrl(new URL(dist.downloadURL));
-            return true;
-          } catch (error) {
-            errorFile.write(
-              JSON.stringify(encodeError({ dataset, dist }, error)) + "\n"
-            );
-            return false;
+        .filter(
+          /** @returns {dist is import("common/schema.js").Distribution & {downloadURL: string}} */
+          (dist) => {
+            try {
+              if (!dist.downloadURL) {
+                throw new Error("No downloadURL in distribution");
+              }
+              patchUrl(new URL(dist.downloadURL));
+              return true;
+            } catch (error) {
+              errorFile.write(
+                JSON.stringify(encodeError({ dataset, dist }, error)) + "\n"
+              );
+              return false;
+            }
           }
-        })
+        )
         .map((dist) => ({
           dataset,
           dist,
@@ -210,21 +217,12 @@ async function downloadDist({ dist, dataset, url, outputPath }) {
 }
 
 /** @typedef DownloadJob
- * @prop {Dataset} dataset
- * @prop {Distribution} dist
+ * @prop {import("common/schema.js").Dataset} dataset
+ * @prop {import("common/schema.js").Distribution} dist
  * @prop {URL} url
  * @prop {string} outputPath
  * @prop {number} attempts
  * @prop {Date=} waitUntil
- */
-/** @typedef Dataset
- * @prop {string} identifier
- * @prop {Distribution[]} distribution
- */
-/** @typedef Distribution
- * @prop {string} identifier
- * @prop {string} fileName
- * @prop {string} downloadURL
  */
 
 // https://security.stackexchange.com/a/123723
@@ -261,7 +259,7 @@ function wait(ms) {
 }
 
 /**
- * @param {{ dataset: Dataset, dist: Distribution, url?: URL }} job
+ * @param {{ dataset: import("common/schema.js").Dataset, dist: import("common/schema.js").Distribution, url?: URL }} job
  * @param {any} error
  */
 function encodeError(job, error) {

@@ -28,6 +28,7 @@ export const zData = z.object({
   homepage: z.string().optional(),
   dataset: z.array(zDataset),
 });
+/** @typedef {z.infer<typeof zData>} Data */
 
 export const zError = z.object({
   url: z.string().optional(),

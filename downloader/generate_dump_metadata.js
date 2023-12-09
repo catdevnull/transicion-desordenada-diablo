@@ -22,12 +22,15 @@ async function generateMetadata(dumpDir) {
       .map(async (file) => {
         const path = join(file.path, file.name);
         const data = await loadDataJson(path);
-        const url = await readFile(join(path, "url.txt"), "utf-8");
+        let url = await readFile(join(path, "url.txt"), "utf-8");
+        if (url.startsWith("datajson+") || url.startsWith("ckan+"))
+          url = url.slice(url.indexOf("+") + 1);
         return {
           title: data.title,
           description: data.description,
           url,
           path: file.name,
+          nDatasets: data.dataset.length,
         };
       })
   );

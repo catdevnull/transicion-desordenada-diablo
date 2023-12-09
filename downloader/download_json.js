@@ -2,7 +2,8 @@ import { mkdir, open, writeFile } from "node:fs/promises";
 import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
 import pLimit from "p-limit";
-import { sitiosPorDefecto, userAgent } from "./config.js";
+import { targetsPorDefecto, userAgent } from "./config.js";
+import { generateDataJsonFromCkan } from "./ckan_to_datajson.js";
 
 setGlobalDispatcher(
   new Agent({
@@ -25,26 +26,43 @@ class StatusCodeError extends Error {
   }
 }
 class TooManyRedirectsError extends Error {}
-let jsonUrls = process.argv.slice(2);
-if (jsonUrls.length < 1) {
-  jsonUrls = sitiosPorDefecto;
+let urls = process.argv.slice(2);
+if (urls.length < 1) {
+  urls = targetsPorDefecto;
 }
-for (const url of jsonUrls)
-  downloadFromData(url).catch((error) =>
-    console.error(`${url} FALLÓ CON`, error)
+/** @typedef {{type: "data.json" | "ckan"; url: string;}} Target */
+
+/** @type {Target[]} */
+const targets = urls.map((url) => {
+  if (url.startsWith("datajson+")) {
+    return { type: "data.json", url: url.slice("datajson+".length) };
+  } else if (url.startsWith("ckan+")) {
+    return { type: "ckan", url: url.slice("ckan+".length) };
+  } else return { type: "data.json", url };
+});
+for (const target of targets)
+  downloadFromData(target).catch((error) =>
+    console.error(`${target} FALLÓ CON`, error)
   );
 
 /**
- * @param {string} jsonUrl
+ * @param {Target} target
  */
-async function downloadFromData(jsonUrl) {
-  const outputPath = generateOutputPath(jsonUrl);
-  const jsonRes = await fetch(jsonUrl);
+async function downloadFromData(target) {
+  const outputPath = generateOutputPath(target.url);
+  let json;
+  if (target.type === "ckan") {
+    json = await generateDataJsonFromCkan(target.url);
+  } else if (target.type === "data.json") {
+    const jsonRes = await fetch(target.url);
+    json = await jsonRes.json();
+  }
+
   // prettier-ignore
-  const parsed = /** @type {{ dataset: Dataset[] }} */(await jsonRes.json())
+  const parsed = /** @type {{ dataset: Dataset[] }} */(json)
   await mkdir(outputPath, { recursive: true });
   await writeFile(join(outputPath, "data.json"), JSON.stringify(parsed));
-  await writeFile(join(outputPath, "url.txt"), jsonUrl);
+  await writeFile(join(outputPath, "url.txt"), `${target.type}+${target.url}`);
   const errorFile = (
     await open(join(outputPath, "errors.jsonl"), "w")
   ).createWriteStream();

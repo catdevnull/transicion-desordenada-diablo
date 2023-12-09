@@ -3,7 +3,7 @@ FROM docker.io/alpine:3.18 as build
 RUN apk add --no-cache npm \
  && npm install -g esbuild pnpm
 
-COPY .. /tmp/build/
+COPY . /tmp/build/
 WORKDIR /tmp/build/downloader
 RUN pnpm install \
  && esbuild --bundle --format=cjs --platform=node --outfile=download_json.build.js --sourcemap=inline download_json.js \

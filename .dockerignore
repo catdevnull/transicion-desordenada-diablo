@@ -6,6 +6,6 @@ prueba
 datos.gob.ar*
 data/
 data*
-downloader/data
+downloader/data*
 
 *.zip

@@ -1,64 +1,8 @@
-// @ts-check
 import { mkdir, open, writeFile } from "node:fs/promises";
 import { Agent, fetch, request, setGlobalDispatcher } from "undici";
 import { join, normalize } from "node:path";
 import pLimit from "p-limit";
-
-export const sitiosPorDefecto = [
-  "https://datos.gob.ar/data.json",
-  "http://datos.energia.gob.ar/data.json",
-  "https://datos.magyp.gob.ar/data.json",
-  "https://datos.acumar.gov.ar/data.json",
-  "https://datasets.datos.mincyt.gob.ar/data.json",
-  "https://datos.arsat.com.ar/data.json",
-  "https://datos.cultura.gob.ar/data.json",
-  "https://datos.mininterior.gob.ar/data.json",
-  "https://datos.produccion.gob.ar/data.json",
-  "https://datos.salud.gob.ar/data.json",
-  "https://datos.transporte.gob.ar/data.json",
-  "https://ckan.ciudaddemendoza.gov.ar/data.json",
-  "https://datos.santafe.gob.ar/data.json",
-  "https://datosabiertos.chaco.gob.ar/data.json",
-  "https://datosabiertos.mercedes.gob.ar/data.json",
-  "http://luj-bue-datos.paisdigital.innovacion.gob.ar/data.json",
-  "https://datosabiertos.desarrollosocial.gob.ar/data.json",
-  "http://datos.mindef.gov.ar/data.json",
-
-  "https://monitoreo.datos.gob.ar/catalog/jgm/data.json",
-  // 'https://datosabiertos.enacom.gob.ar/data.json',
-  "https://monitoreo.datos.gob.ar/catalog/otros/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/aaip/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/sedronar/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/modernizacion/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/shn/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/smn/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/ign/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/justicia/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/seguridad/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/ambiente/data.json",
-  // "http://andino.siu.edu.ar/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/educacion/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/inti/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/ssprys/data.json",
-  "https://www.presupuestoabierto.gob.ar/sici/rest-api/catalog/public",
-  "https://transparencia.enargas.gob.ar/data.json",
-  "https://infra.datos.gob.ar/catalog/sspm/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/ssprys/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/siep/data.json",
-  "https://monitoreo.datos.gob.ar/catalog/exterior/data.json",
-  "http://datos.pami.org.ar/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/trabajo/data.json",
-  "https://datos.yvera.gob.ar/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/renaper/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/dine/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/obras/data.json",
-  "https://monitoreo.datos.gob.ar/media/catalog/generos/data.json",
-];
-
-// desactivado porque va MUY lento: datosabiertos.gualeguaychu.gov.ar
-
-// FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
-// www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
+import { sitiosPorDefecto, userAgent } from "./config.js";
 
 setGlobalDispatcher(
   new Agent({
@@ -181,6 +125,7 @@ export function generateOutputPath(jsonUrlString) {
 /**
  * @argument {DownloadJob} job
  * @argument {number} attempts
+ * @returns {Promise<void>}
  */
 async function downloadDistWithRetries(job, attempts = 0) {
   const { url } = job;
@@ -222,7 +167,7 @@ async function downloadDist({ dist, dataset, url, outputPath }) {
     headers: {
       "User-Agent": spoofUserAgent
         ? "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
-        : "transicion-desordenada (https://nulo.ar)",
+        : userAgent,
     },
   });
   if (res.statusCode >= 300 && res.statusCode <= 399)

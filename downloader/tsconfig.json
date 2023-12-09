@@ -11,6 +11,8 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "checkJs": true,
+    "noEmit": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16"
   },

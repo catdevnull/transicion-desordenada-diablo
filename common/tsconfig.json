@@ -3,12 +3,16 @@
     "lib": ["es2023"],
     "module": "ES2020",
     "target": "es2022",
+    "moduleResolution": "Bundler",
 
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "emitDeclarationOnly": true,
-    "declaration": true
-  }
+    "declaration": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["*.js"]
 }

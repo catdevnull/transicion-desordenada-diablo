@@ -1,11 +1,16 @@
-import streamSaver from "streamsaver";
-import { zData, type Distribution, zError, zDumpMetadata } from "common/schema";
+import {
+  zData,
+  type Distribution,
+  zError,
+  zDumpMetadata,
+} from "common/schema.js";
 
 export async function downloadFile(
   dataPath: string,
   datasetId: string,
   dist: Distribution,
 ) {
+  const streamSaver = await import("streamsaver");
   if (!dist.downloadURL) throw new Error("no downloadURL");
   const outputS = streamSaver.createWriteStream(
     dist.downloadURL.slice(dist.downloadURL.lastIndexOf("/") + 1),

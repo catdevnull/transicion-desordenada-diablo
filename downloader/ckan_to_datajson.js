@@ -58,7 +58,7 @@ const zCkanGroup = z.object({
 const zCkanPackage = z.object({
   license_title: z.string(),
   license_id: z.string(),
-  license_url: z.string(),
+  license_url: z.string().optional(),
   maintainer: z.string(),
   maintainer_email: z.string(),
   id: z.string(),
@@ -99,7 +99,7 @@ const zCkanStatusShow = z.object({
       .string()
       .describe("Descripción del portal. A veces vacio."),
     site_title: z.string(),
-    error_emails_to: z.string(),
+    error_emails_to: z.string().nullable(),
   }),
 });
 

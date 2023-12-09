@@ -3,12 +3,12 @@
   export let href: string;
 </script>
 
-<li class="flex items-center h-full">
+<li class="min-w-0">
   <a
     {href}
-    class="inline-flex items-center px-2 py-1.5 space-x-1.5 rounded-md hover:text-neutral-900 hover:bg-neutral-100 dark:hover:text-gray-100 dark:hover:bg-gray-800"
+    class="block w-full space-x-1.5 overflow-hidden text-ellipsis whitespace-nowrap rounded-md px-2 py-1.5 hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
     class:active-breadcrumb={active}
   >
-    <span><slot /></span>
+    <slot />
   </a>
 </li>

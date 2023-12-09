@@ -14,22 +14,28 @@
   $: dumpName = generateDumpName(params.dumpUrl);
 </script>
 
-<nav class="flex justify-between m-2">
+<nav class="m-2 flex justify-between">
   <ol
-    class="flex items-center mb-3 text-sm text-neutral-500 dark:text-neutral-300 [&_.active-breadcrumb]:text-neutral-600 dark:[&_.active-breadcrumb]:text-neutral-200 [&_.active-breadcrumb]:font-bold sm:mb-0"
+    class="mb-3 flex items-center overflow-x-hidden text-sm text-neutral-500 dark:text-neutral-300 sm:mb-0 [&_.active-breadcrumb]:font-bold [&_.active-breadcrumb]:text-neutral-600 dark:[&_.active-breadcrumb]:text-neutral-200"
     class:active-breadcrumb={kind === "dump"}
   >
     <NavItem href={inject(routes.Dump, params)} active={kind === "dump"}
       >{dumpName}</NavItem
     >
     {#if "portal" in params}
-      <ChevronRight class="w-5 h-5 text-neutral-400" fill="currentColor" />
+      <ChevronRight
+        class="h-5 w-5 shrink-0 text-neutral-400"
+        fill="currentColor"
+      />
       <NavItem href={inject(routes.Portal, params)} active={kind === "portal"}>
         {params.portal}
       </NavItem>
     {/if}
     {#if "id" in params}
-      <ChevronRight class="w-5 h-5 text-neutral-400" fill="currentColor" />
+      <ChevronRight
+        class="h-5 w-5 shrink-0 text-neutral-400"
+        fill="currentColor"
+      />
       <NavItem
         href={inject(routes.Dataset, params)}
         active={kind === "dataset"}

@@ -11,9 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "common": "workspace:",
     "p-limit": "^5.0.0",
     "undici": "^5.28.0",
-    "common": "workspace:"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",

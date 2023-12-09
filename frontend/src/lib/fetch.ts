@@ -25,7 +25,15 @@ async function fetchGzipped(url: string): Promise<Response> {
     res = await fetch(url.slice(0, url.length - ".gz".length));
     return res;
   }
-  const ds = new DecompressionStream("gzip");
+  let DecStream;
+  if ("DecompressionStream" in window) DecStream = window.DecompressionStream;
+  else {
+    const { makeDecompressionStream } = await import(
+      "compression-streams-polyfill/ponyfill"
+    );
+    DecStream = makeDecompressionStream(TransformStream);
+  }
+  const ds = new DecStream("gzip");
   const decompressedStream = res.body!.pipeThrough(ds);
   const resD = new Response(decompressedStream);
   return resD;

@@ -23,6 +23,9 @@ importers:
       undici:
         specifier: ^5.28.0
         version: 5.28.2
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@tsconfig/node20':
         specifier: ^20.1.2
@@ -33,6 +36,9 @@ importers:
 
   frontend:
     dependencies:
+      compression-streams-polyfill:
+        specifier: ^0.1.6
+        version: 0.1.6
       eva-icons:
         specifier: ^1.1.3
         version: 1.1.3
@@ -703,6 +709,12 @@ packages:
     engines: {node: '>= 10'}
     dev: true
 
+  /compression-streams-polyfill@0.1.6:
+    resolution: {integrity: sha512-vYXHeCzZPfKqz/ppInffY2HkevGbV6zm5wlSgtrW0+6neApbA5qZdG48KaDEhRmbIFhLgmVUlUc+szH9NrcaBA==}
+    dependencies:
+      fflate: 0.8.1
+    dev: false
+
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
     dev: true
@@ -887,6 +899,10 @@ packages:
     dependencies:
       reusify: 1.0.4
     dev: true
+
+  /fflate@0.8.1:
+    resolution: {integrity: sha512-/exOvEuc+/iaUm105QIiOt4LpBdMTWsXxqR0HDF35vx3fmaKzw7354gTilCh5rkzEt8WYyG//ku3h3nRmd7CHQ==}
+    dev: false
 
   /fill-range@7.0.1:
     resolution: {integrity: sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==}

@@ -18,6 +18,7 @@ export const targetsPorDefecto = [
   "datajson+https://datosabiertos.desarrollosocial.gob.ar/data.json",
   "datajson+http://datos.mindef.gov.ar/data.json",
   "datajson+http://datos.legislatura.gob.ar/data.json",
+  "datajson+https://portal.hcdiputados-ba.gov.ar/data.json", // Cámara de Diputados de la Provincia de Buenos Aires
   "datajson+https://datos.arsat.com.ar/data.json",
 
   "datajson+https://monitoreo.datos.gob.ar/catalog/jgm/data.json",

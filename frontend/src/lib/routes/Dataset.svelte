@@ -11,9 +11,9 @@
   export let params: { dumpUrl: string; portal: string; id: string };
   $: url = decodeURIComponent(params.dumpUrl) + "/" + params.portal;
 
-  $: data = Promise.all([fetchData(url), fetchErrors(url)]).then(
-    ([data, errors]) => ({ data, errors }),
-  );
+  $: data = Promise.all([fetchData(url), fetchErrors(url)])
+    .then(([data, errors]) => ({ data, errors }))
+    .catch(alert);
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -28,9 +28,9 @@
         <NotFound />
       {:else}
         <header
-          class="py-5 px-6 border-b border-b-gray-200 dark:border-b-gray-700"
+          class="border-b border-b-gray-200 px-6 py-5 dark:border-b-gray-700"
         >
-          <h1 class="font-bold text-3xl">{dataset.title}</h1>
+          <h1 class="text-3xl font-bold">{dataset.title}</h1>
           <p class="text-xl">{dataset.description}</p>
           <!--
             lo saqué porque aún antes de que venga la motosierra estos links no funcionan...
@@ -54,13 +54,13 @@
                 e.datasetIdentifier === dataset.identifier &&
                 e.distributionIdentifier === dist.identifier,
             )}
-            <li class="flex px-6 py-5 justify-between items-center">
+            <li class="flex items-center justify-between px-6 py-5">
               <div>
                 <h3>
                   {dist.title}
                   {#if dist.format}
                     <span
-                      class="border border-current text-blue-800 dark:text-blue-400 relative inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full ml-1"
+                      class="relative ml-1 inline-flex items-center rounded-full border border-current px-2 py-1 text-xs font-semibold text-blue-800 dark:text-blue-400"
                     >
                       <span>{dist.format}</span>
                     </span>
@@ -85,7 +85,7 @@
                 {#if !error}
                   <button
                     type="button"
-                    class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-700 focus:shadow-outline focus:outline-none"
+                    class="focus:shadow-outline inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
                     on:click={() => downloadFile(url, dataset.identifier, dist)}
                     >Descargar</button
                   >

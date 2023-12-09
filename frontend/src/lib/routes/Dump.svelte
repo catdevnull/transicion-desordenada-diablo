@@ -8,7 +8,7 @@
   export let params: { dumpUrl: string };
   $: url = decodeURIComponent(params.dumpUrl);
 
-  $: metadataPromise = fetchDumpMetadata(url);
+  $: metadataPromise = fetchDumpMetadata(url).catch(alert);
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -17,12 +17,12 @@
       <p class="p-6">Cargando..</p>
     {:then metadata}
       <header
-        class="py-5 px-6 border-b border-b-gray-200 dark:border-b-gray-700 leading-none"
+        class="border-b border-b-gray-200 px-6 py-5 leading-none dark:border-b-gray-700"
       >
         <small>
           Viendo archivo en
           <a
-            class="underline text-blue-500 dark:text-blue-300"
+            class="text-blue-500 underline dark:text-blue-300"
             target="_blank"
             rel="noopener"
             href={url}>{url}</a
@@ -37,15 +37,15 @@
             portal: site.path,
           })}
           <li>
-            <div class="flex px-6 py-5 justify-between gap-3">
+            <div class="flex justify-between gap-3 px-6 py-5">
               <div class="flex flex-col">
                 <h3 class="text-lg">{site.title}</h3>
                 <p class="text-sm">{site.description}</p>
               </div>
-              <div class="flex flex-col items-center justify-center shrink-0">
+              <div class="flex shrink-0 flex-col items-center justify-center">
                 <a
                   href={portalLink}
-                  class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-700 focus:shadow-outline focus:outline-none"
+                  class="focus:shadow-outline inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
                   >Ver portal</a
                 >
                 <SourceLink href={site.url} />

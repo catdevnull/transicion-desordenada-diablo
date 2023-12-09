@@ -11,9 +11,9 @@
   export let params: { dumpUrl: string; portal: string };
   $: url = `${decodeURIComponent(params.dumpUrl)}/${params.portal}`;
 
-  $: data = Promise.all([fetchData(url), fetchErrors(url)]).then(
-    ([data, errors]) => ({ data, errors }),
-  );
+  $: data = Promise.all([fetchData(url), fetchErrors(url)])
+    .then(([data, errors]) => ({ data, errors }))
+    .catch(alert);
 
   function arreglarHomepageUrl(url: string): string {
     if (!url.startsWith("http://") && !url.startsWith("https://"))
@@ -51,29 +51,29 @@
       <p class="p-6">Cargando..</p>
     {:then { data, errors }}
       <header
-        class="py-5 px-6 border-b border-b-gray-200 dark:border-b-gray-700 leading-none"
+        class="border-b border-b-gray-200 px-6 py-5 leading-none dark:border-b-gray-700"
       >
         <small>
           Viendo portal archivado de
           <a
-            class="underline text-blue-500 dark:text-blue-300"
+            class="text-blue-500 underline dark:text-blue-300"
             target="_blank"
             rel="noopener"
             href={url}>{url}</a
           >
         </small>
-        <h1 class="font-bold text-3xl">{data.title}</h1>
+        <h1 class="text-3xl font-bold">{data.title}</h1>
         <p class="text-xl">{data.description}</p>
         {#if data.homepage}
           <SourceLink href={arreglarHomepageUrl(data.homepage)} />
         {/if}
       </header>
 
-      <div class="w-full mx-auto px-6 py-2">
+      <div class="mx-auto w-full px-6 py-2">
         <input
           type="text"
           placeholder="Buscar..."
-          class="flex w-full h-10 px-3 py-2 text-sm bg-white dark:bg-gray-800 border rounded-md border-neutral-300 dark:border-gray-700 ring-offset-background placeholder:text-neutral-500 dark:placeholder:text-gray-500 focus:border-neutral-300 dark:focus:border-gray-700 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+          class="ring-offset-background flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:placeholder:text-gray-500 dark:focus:border-gray-700 dark:focus:ring-gray-600"
           bind:value={query}
         />
       </div>
@@ -87,7 +87,7 @@
           })}
           <li>
             <a
-              class="flex px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-700 justify-between"
+              class="flex justify-between px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-700"
               href={datasetLink}
             >
               <div>

@@ -1,11 +1,12 @@
 <script lang="ts">
   import ArrowBack from "eva-icons/outline/svg/arrow-back-outline.svg?component";
-  import ExternalLink from "eva-icons/outline/svg/external-link-outline.svg?component";
   import { downloadFile, fetchData, fetchErrors } from "../fetch";
   import NotFound from "./NotFound.svelte";
   import { inject } from "regexparam";
   import { routes } from "../router";
   import Nav from "../nav/Nav.svelte";
+  import SourceLink from "../components/SourceLink.svelte";
+  import Container from "../components/Container.svelte";
 
   export let params: { dumpUrl: string; portal: string; id: string };
   $: url = decodeURIComponent(params.dumpUrl) + "/" + params.portal;
@@ -18,7 +19,7 @@
 <main class="mx-auto max-w-3xl">
   <Nav {params} />
 
-  <div class="rounded-lg border bg-white m-2">
+  <Container>
     {#await data}
       <p class="p-6">Cargando dataset...</p>
     {:then { data, errors }}
@@ -26,18 +27,9 @@
       {#if !dataset}
         <NotFound />
       {:else}
-        <header class="py-5 px-6 border-b border-b-gray-200">
-          <small>
-            <a
-              class="flex text-blue-500 leading-none gap-1 items-center"
-              href={inject(routes.Portal, {
-                dumpUrl: params.dumpUrl,
-                portal: params.portal,
-              })}
-            >
-              <ArrowBack fill="currentColor" class="h-[1.25em]" /> Viendo {data.title}
-            </a>
-          </small>
+        <header
+          class="py-5 px-6 border-b border-b-gray-200 dark:border-b-gray-700"
+        >
           <h1 class="font-bold text-3xl">{dataset.title}</h1>
           <p class="text-xl">{dataset.description}</p>
           <!--
@@ -55,7 +47,7 @@
             </a>
           {/if} -->
         </header>
-        <ul class="divide-y divide-gray-100">
+        <ul class="divide-y divide-gray-100 dark:divide-gray-700">
           {#each dataset.distribution as dist}
             {@const error = errors.find(
               (e) =>
@@ -68,7 +60,7 @@
                   {dist.title}
                   {#if dist.format}
                     <span
-                      class="border border-current text-blue-800 relative inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full ml-1"
+                      class="border border-current text-blue-800 dark:text-blue-400 relative inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full ml-1"
                     >
                       <span>{dist.format}</span>
                     </span>
@@ -99,15 +91,7 @@
                   >
                 {/if}
                 {#if dist.downloadURL}
-                  <a
-                    class="flex items-center leading-none text-gray-600 gap-1 pt-2"
-                    href={dist.downloadURL}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <ExternalLink fill="currentColor" class="h-4" />
-                    Fuente
-                  </a>
+                  <SourceLink href={dist.downloadURL} />
                 {/if}
               </div>
             </li>
@@ -115,5 +99,5 @@
         </ul>
       {/if}
     {/await}
-  </div>
+  </Container>
 </main>

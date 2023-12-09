@@ -1,17 +1,11 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
-import svelteSVG from "vite-plugin-svelte-svg";
+import svg from "@poppanator/sveltekit-svg";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
     sourcemap: true,
   },
-  plugins: [
-    svelte(),
-    svelteSVG({
-      svgoConfig: {}, // See https://github.com/svg/svgo#configuration
-      requireSuffix: true, // Set false to accept '.svg' without the '?component'
-    }),
-  ],
+  plugins: [svelte(), svg()],
 });

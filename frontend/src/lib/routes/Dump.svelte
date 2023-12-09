@@ -8,7 +8,7 @@
   export let params: { dumpUrl: string };
   $: url = decodeURIComponent(params.dumpUrl);
 
-  $: metadataPromise = fetchDumpMetadata(url).catch(alert);
+  $: metadataPromise = fetchDumpMetadata(url);
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -28,6 +28,9 @@
             href={url}>{url}</a
           >
         </small>
+        <h1 class="mt-2 text-3xl font-bold">
+          Portales ({metadata.sites.length})
+        </h1>
       </header>
 
       <ul class="divide-y divide-gray-100 dark:divide-gray-700">

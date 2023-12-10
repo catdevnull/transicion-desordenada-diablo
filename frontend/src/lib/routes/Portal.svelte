@@ -51,7 +51,7 @@
       <p class="p-6">Cargando..</p>
     {:then { data, errors }}
       <header
-        class="border-b border-b-gray-200 px-6 py-5 leading-none dark:border-b-gray-700"
+        class="flex flex-col gap-1 border-b border-b-gray-200 px-6 py-5 leading-none dark:border-b-gray-700"
       >
         <small>
           Viendo portal archivado de

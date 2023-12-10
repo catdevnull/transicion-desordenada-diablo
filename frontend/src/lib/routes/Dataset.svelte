@@ -81,7 +81,7 @@
                   <small>{dist.fileName}</small>
                 {/if}
               </div>
-              <div class="flex flex-col items-center">
+              <div class="flex flex-col items-center gap-2">
                 {#if !error}
                   <button
                     type="button"

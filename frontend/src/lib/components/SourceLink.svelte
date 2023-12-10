@@ -5,11 +5,13 @@
 </script>
 
 <a
-  class="flex items-center leading-none text-gray-600 dark:text-gray-300 gap-1 pt-2"
+  class="flex items-center gap-1 leading-none text-gray-600 dark:text-gray-300"
   {href}
   target="_blank"
   rel="noopener"
 >
   <ExternalLink fill="currentColor" class="h-4" />
-  <span class="underline">Fuente</span>
+  <span class="underline">
+    <slot>Fuente</slot>
+  </span>
 </a>

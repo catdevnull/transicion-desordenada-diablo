@@ -25,6 +25,12 @@
         <!-- jq '.dataset | length' */data.json | awk '{s+=$1} END {print s}' -->
         <span>3277 datasets</span>
       </span>
+      <span
+        class="relative ml-1 inline-flex items-center rounded-full border border-current px-2 py-1 text-xs font-semibold text-blue-800 dark:text-blue-400"
+      >
+        <!-- du -sh -->
+        <span>100 GB</span>
+      </span>
     </div>
     <ArrowForward
       fill="currentColor"

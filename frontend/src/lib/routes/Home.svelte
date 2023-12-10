@@ -1,6 +1,6 @@
 <script lang="ts">
   import Container from "../components/Container.svelte";
-  import Portal from "./Home/Portal.svelte";
+  import Dump from "./Home/Dump.svelte";
 </script>
 
 <main class="prose mx-auto dark:prose-invert">
@@ -27,7 +27,7 @@
       <ul
         class="divide-y divide-gray-100 border-y border-y-gray-100 dark:divide-gray-700 dark:border-y-gray-700"
       >
-        <Portal />
+        <Dump />
       </ul>
     </div>
 

@@ -2,40 +2,33 @@
   import ArrowForward from "eva-icons/outline/svg/arrow-forward-outline.svg?component";
   import { inject } from "regexparam";
   import { routes } from "../../router";
+  import DumpBadge from "./DumpBadge.svelte";
+
+  export let dumpUrl: string;
+  export let nPortales: number;
+  export let nDatasets: number;
+  export let size: string;
+  export let glow: boolean = false;
 </script>
 
 <li>
   <a
-    class="flex justify-between px-6 py-5 shadow-glow shadow-blue-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+    class="flex justify-between px-6 py-5 shadow-blue-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+    class:shadow-glow={glow}
     href={inject(routes.Dump, {
-      dumpUrl: encodeURIComponent("https://archivos.nulo.ar/dump-2023-12-08/"),
+      dumpUrl: encodeURIComponent(dumpUrl),
     })}
   >
     <div>
-      <h3 class="text-lg">8 de diciembre de 2023</h3>
-      <span
-        class="relative ml-1 inline-flex items-center rounded-full border border-current px-2 py-1 text-xs font-semibold text-blue-800 dark:text-blue-400"
-      >
-        <!-- find . -maxdepth 1 -mindepth 1 -type d | wc -l -->
-        <span>43 portales</span>
-      </span>
-      <span
-        class="relative ml-1 inline-flex items-center rounded-full border border-current px-2 py-1 text-xs font-semibold text-blue-800 dark:text-blue-400"
-      >
-        <!-- jq '.dataset | length' */data.json | awk '{s+=$1} END {print s}' -->
-        <span>3277 datasets</span>
-      </span>
-      <span
-        class="relative ml-1 inline-flex items-center rounded-full border border-current px-2 py-1 text-xs font-semibold text-blue-800 dark:text-blue-400"
-      >
-        <!-- du -sh -->
-        <span>100 GB</span>
-      </span>
+      <h3 class="text-lg"><slot /></h3>
+      <DumpBadge>{nPortales} portales</DumpBadge>
+      <DumpBadge>{nDatasets} datasets</DumpBadge>
+      <DumpBadge>{size}</DumpBadge>
     </div>
     <ArrowForward
       fill="currentColor"
       aria-hidden="true"
-      class="w-6 shrink-0 text-gray-600 dark:text-gray-400  "
+      class="w-6 shrink-0 text-gray-600 dark:text-gray-400"
     />
   </a>
 </li>

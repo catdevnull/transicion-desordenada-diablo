@@ -27,7 +27,22 @@
       <ul
         class="divide-y divide-gray-100 border-y border-y-gray-100 dark:divide-gray-700 dark:border-y-gray-700"
       >
-        <Dump />
+        <!-- nPortales: find . -maxdepth 1 -mindepth 1 -type d | wc -l -->
+        <!-- nDatasets: jq '.dataset | length' */data.json | awk '{s+=$1} END {print s}' -->
+        <!-- size: du -sh -->
+        <Dump
+          dumpUrl="https://archivos.nulo.ar/portales-de-datos/dump-2023-12-09/"
+          nPortales={50}
+          nDatasets={4098}
+          size="147 GB"
+          glow>9 de diciembre de 2023</Dump
+        >
+        <Dump
+          dumpUrl="https://archivos.nulo.ar/dump-2023-12-08/"
+          nPortales={43}
+          nDatasets={3277}
+          size="100 GB">8 de diciembre de 2023</Dump
+        >
       </ul>
     </div>
 

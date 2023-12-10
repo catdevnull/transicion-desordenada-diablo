@@ -58,7 +58,10 @@
         {/each}
       </ul>
     {:catch error}
-      Hubo un error intenando cargar este archivo. <pre>{error}</pre>
+      <div class="p-6">
+        <p>Hubo un error intenando cargar este archivo.</p>
+        <p class="text-red-700 dark:text-red-500">{error}</p>
+      </div>
     {/await}
   </Container>
 </main>

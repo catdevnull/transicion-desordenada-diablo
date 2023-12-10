@@ -68,6 +68,8 @@ async function downloadFromData(target) {
     await open(join(outputPath, "errors.jsonl"), "w")
   ).createWriteStream();
   try {
+    let nFinished = 0;
+    let nErrors = 0;
     /** @type {DownloadJob[]} */
     const jobs = parsed.dataset.flatMap((dataset) =>
       dataset.distribution
@@ -82,8 +84,9 @@ async function downloadFromData(target) {
               return true;
             } catch (error) {
               errorFile.write(
-                JSON.stringify(encodeError({ dataset, dist }, error)) + "\n"
+                JSON.stringify(encodeError({ dataset, dist }, error)) + "\n",
               );
+              nErrors++;
               return false;
             }
           },
@@ -97,8 +100,6 @@ async function downloadFromData(target) {
         })),
     );
     const totalJobs = jobs.length;
-    let nFinished = 0;
-    let nErrors = 0;
 
     // por las dudas verificar que no hayan archivos duplicados
     chequearIdsDuplicados(jobs, outputPath);

@@ -13,8 +13,11 @@
 
 <li>
   <a
-    class="flex justify-between px-6 py-5 shadow-blue-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+    class="relative flex justify-between px-6 py-5 shadow-blue-300 hover:bg-gray-50 dark:hover:bg-gray-700"
     class:shadow-glow={glow}
+    class:hover:bg-blue-50={glow}
+    class:dark:hover:bg-slate-700={glow}
+    class:z-10={glow}
     href={inject(routes.Dump, {
       dumpUrl: encodeURIComponent(dumpUrl),
     })}

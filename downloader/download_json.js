@@ -9,7 +9,7 @@ import { zData } from "common/schema.js";
 setGlobalDispatcher(
   new Agent({
     pipelining: 0,
-  })
+  }),
 );
 
 /** key es host
@@ -43,7 +43,7 @@ const targets = urls.map((url) => {
 });
 for (const target of targets)
   downloadFromData(target).catch((error) =>
-    console.error(`${target.type}+${target.url} FALLÓ CON`, error)
+    console.error(`${target.type}+${target.url} FALLÓ CON`, error),
   );
 
 /**
@@ -86,7 +86,7 @@ async function downloadFromData(target) {
               );
               return false;
             }
-          }
+          },
         )
         .map((dist) => ({
           dataset,
@@ -94,7 +94,7 @@ async function downloadFromData(target) {
           url: patchUrl(new URL(dist.downloadURL)),
           outputPath,
           attempts: 0,
-        }))
+        })),
     );
     const totalJobs = jobs.length;
     let nFinished = 0;
@@ -126,7 +126,7 @@ async function downloadFromData(target) {
     process.stderr.write(`info[${outputPath}]: 0/${totalJobs} done\n`);
     const interval = setInterval(() => {
       process.stderr.write(
-        `info[${outputPath}]: ${nFinished}/${totalJobs} done\n`
+        `info[${outputPath}]: ${nFinished}/${totalJobs} done\n`,
       );
     }, 30000);
     await Promise.all(promises);
@@ -204,12 +204,12 @@ async function downloadDist({ dist, dataset, url, outputPath }) {
   const fileDirPath = join(
     outputPath,
     sanitizeSuffix(dataset.identifier),
-    sanitizeSuffix(dist.identifier)
+    sanitizeSuffix(dist.identifier),
   );
   await mkdir(fileDirPath, { recursive: true });
   const filePath = join(
     fileDirPath,
-    sanitizeSuffix(dist.fileName || dist.identifier)
+    sanitizeSuffix(dist.fileName || dist.identifier),
   );
 
   if (!res.body) throw new Error("no body");
@@ -239,11 +239,11 @@ function sanitizeSuffix(path) {
  */
 function chequearIdsDuplicados(jobs, id) {
   const duplicated = hasDuplicates(
-    jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`)
+    jobs.map((j) => `${j.dataset.identifier}/${j.dist.identifier}`),
   );
   if (duplicated) {
     console.error(
-      `ADVERTENCIA[${id}]: ¡encontré duplicados! es posible que se pisen archivos entre si`
+      `ADVERTENCIA[${id}]: ¡encontré duplicados! es posible que se pisen archivos entre si`,
     );
   }
 }

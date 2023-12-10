@@ -162,8 +162,8 @@ async function downloadDistWithRetries(job, attempts = 0) {
     // intentar hasta 15 veces con 15 segundos de por medio
     if (
       error instanceof StatusCodeError &&
-      error.code === 403 &&
-      url.host === "minsegar-my.sharepoint.com" &&
+      ((error.code === 403 && url.host === "minsegar-my.sharepoint.com") ||
+        (error.code === 503 && url.host === "cdn.buenosaires.gob.ar")) &&
       attempts < 15
     ) {
       await wait(15000);

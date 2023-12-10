@@ -40,7 +40,9 @@
             portal: site.path,
           })}
           <li>
-            <div class="flex justify-between gap-3 px-6 py-5">
+            <div
+              class="flex flex-col justify-between gap-3 px-6 py-5 sm:flex-row"
+            >
               <div class="flex flex-col gap-2">
                 <h3 class="text-lg leading-none">{site.title}</h3>
                 <SourceLink href={site.url}>{site.url}</SourceLink>

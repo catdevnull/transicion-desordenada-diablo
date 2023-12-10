@@ -8,7 +8,7 @@
     <div class="px-6 pt-5">
       <h1>Archivo de portales de datos abiertos de Argentina</h1>
       <p>
-        Explorá respaldos de los datos publicados en 43 portales de datos
+        Explorá respaldos de los datos publicados en 50 portales de datos
         abiertos.
       </p>
       <p>

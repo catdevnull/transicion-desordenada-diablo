@@ -56,7 +56,7 @@
         <small>
           Viendo portal archivado de
           <a
-            class="text-blue-500 underline dark:text-blue-300"
+            class="break-words text-blue-500 underline dark:text-blue-300"
             target="_blank"
             rel="noopener"
             href={url}>{url}</a
@@ -90,14 +90,14 @@
               class="flex justify-between px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-700"
               href={datasetLink}
             >
-              <div>
+              <div class="max-w-full hyphens-auto break-words">
                 <h3 class="text-lg">{dataset.title}</h3>
                 <p class="text-sm">{dataset.description}</p>
               </div>
               <ArrowForward
                 fill="currentColor"
                 aria-hidden="true"
-                class="w-6 shrink-0 text-gray-600 dark:text-gray-400  "
+                class="w-6 shrink-0 text-gray-600 dark:text-gray-400"
               />
             </a>
           </li>

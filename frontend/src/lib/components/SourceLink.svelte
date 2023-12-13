@@ -10,8 +10,8 @@
   target="_blank"
   rel="noopener"
 >
-  <ExternalLink fill="currentColor" class="h-4" />
-  <span class="underline">
+  <ExternalLink fill="currentColor" class="h-4 shrink-0" />
+  <span class="w-full break-words underline">
     <slot>Fuente</slot>
   </span>
 </a>

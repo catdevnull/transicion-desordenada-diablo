@@ -54,7 +54,9 @@
                 e.datasetIdentifier === dataset.identifier &&
                 e.distributionIdentifier === dist.identifier,
             )}
-            <li class="flex items-center justify-between px-6 py-5">
+            <li
+              class="flex flex-col items-center items-stretch justify-between gap-1 px-6 py-5 sm:flex-row"
+            >
               <div>
                 <h3>
                   {dist.title}
@@ -81,7 +83,9 @@
                   <small>{dist.fileName}</small>
                 {/if}
               </div>
-              <div class="flex flex-col items-center gap-2">
+              <div
+                class="flex flex-row-reverse place-content-end gap-4 sm:flex-col sm:place-content-center sm:items-center sm:gap-2"
+              >
                 {#if !error}
                   <button
                     type="button"

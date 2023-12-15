@@ -4,7 +4,6 @@ export const targetsPorDefecto = [
   "datajson+https://datos.magyp.gob.ar/data.json",
   "datajson+https://datos.acumar.gov.ar/data.json",
   "datajson+https://datasets.datos.mincyt.gob.ar/data.json",
-  "datajson+https://datos.arsat.com.ar/data.json",
   "datajson+https://datos.cultura.gob.ar/data.json",
   "datajson+https://datos.mininterior.gob.ar/data.json",
   "datajson+https://datos.produccion.gob.ar/data.json",

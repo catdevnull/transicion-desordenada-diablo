@@ -42,7 +42,7 @@ export const targetsPorDefecto = [
   "datajson+https://monitoreo.datos.gob.ar/catalog/ssprys/data.json",
   "datajson+https://monitoreo.datos.gob.ar/catalog/siep/data.json",
   "datajson+https://monitoreo.datos.gob.ar/catalog/exterior/data.json",
-  "datajson+http://datos.pami.org.ar/data.json",
+  "datajson+https://datos.pami.org.ar/data.json",
   "datajson+https://monitoreo.datos.gob.ar/media/catalog/trabajo/data.json",
   "datajson+https://datos.yvera.gob.ar/data.json",
   "datajson+https://monitoreo.datos.gob.ar/media/catalog/renaper/data.json",

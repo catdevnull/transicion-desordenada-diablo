@@ -41,7 +41,7 @@ async function downloadFromData(target) {
     const jsonRes = await customRequestWithLimitsAndRetries(
       new URL(target.url)
     );
-    json = await jsonRes.json();
+    json = await jsonRes.body.json();
   }
 
   const parsed = zData.parse(json);

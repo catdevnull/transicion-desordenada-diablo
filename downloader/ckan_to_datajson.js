@@ -12,7 +12,7 @@ const zCkanPackageList = z.object({
  */
 async function getJson(url) {
   const res = await customRequestWithLimitsAndRetries(new URL(url));
-  const json = await res.body.json();
+  const json = await res.json();
   return json;
 }
 

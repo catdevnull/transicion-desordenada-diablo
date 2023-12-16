@@ -1,13 +1,5 @@
-import { Dispatcher, request, Agent, setGlobalDispatcher } from "undici";
 import pLimit from "p-limit";
 import { userAgent } from "./config.js";
-
-setGlobalDispatcher(
-  new Agent({
-    pipelining: 0,
-    bodyTimeout: 15 * 60 * 1000,
-  })
-);
 
 export class StatusCodeError extends Error {
   /**
@@ -30,7 +22,7 @@ const nConnections = process.env.N_THREADS
 /**
  * @argument {URL} url
  * @argument {number} attempts
- * @returns {Promise<Dispatcher.ResponseData>}
+ * @returns {Promise<import("undici").BodyMixin>}
  */
 export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
   try {
@@ -83,23 +75,23 @@ async function _customRequestWithLimits(url) {
 
 /**
  * @param {URL} url
+ * @returns {Promise<import("undici").BodyMixin>}
  */
 async function _customRequest(url) {
   // sharepoint no le gusta compartir a bots lol
   const spoofUserAgent = url.host.endsWith("sharepoint.com");
 
-  const res = await request(url.toString(), {
-    maxRedirections: 20,
+  const res = await fetch(url.toString(), {
+    // maxRedirections: 20,
     headers: {
       "User-Agent": spoofUserAgent
         ? "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
         : userAgent,
     },
   });
-  if (res.statusCode >= 300 && res.statusCode <= 399)
-    throw new TooManyRedirectsError();
-  if (res.statusCode < 200 || res.statusCode > 299)
-    throw new StatusCodeError(res.statusCode);
+  if (res.status >= 300 && res.status <= 399) throw new TooManyRedirectsError();
+  if (res.status < 200 || res.status > 299)
+    throw new StatusCodeError(res.status);
 
   return res;
 }

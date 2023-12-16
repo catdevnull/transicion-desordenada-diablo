@@ -8,6 +8,7 @@ import {
   TooManyRedirectsError,
   customRequestWithLimitsAndRetries,
 } from "./network.js";
+import { createWriteStream } from "node:fs";
 
 let urls = process.argv.slice(2);
 if (urls.length < 1) {
@@ -48,9 +49,9 @@ async function downloadFromData(target) {
   await mkdir(outputPath, { recursive: true });
   await writeFile(join(outputPath, "data.json"), JSON.stringify(json));
   await writeFile(join(outputPath, "url.txt"), `${target.type}+${target.url}`);
-  const errorFile = (
-    await open(join(outputPath, "errors.jsonl"), "w")
-  ).createWriteStream();
+  const errorFile = createWriteStream(join(outputPath, "errors.jsonl"), {
+    flags: "w",
+  });
   try {
     let nFinished = 0;
     let nErrors = 0;

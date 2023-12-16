@@ -1,7 +1,6 @@
-import { request } from "undici";
 import z from "zod";
-import { userAgent } from "./config.js";
 import { basename } from "path";
+import { customRequestWithLimitsAndRetries } from "./network.js";
 
 const zCkanPackageList = z.object({
   success: z.literal(true),
@@ -12,11 +11,7 @@ const zCkanPackageList = z.object({
  * @param {string} url
  */
 async function getJson(url) {
-  const res = await request(url, {
-    headers: {
-      "User-Agent": userAgent,
-    },
-  });
+  const res = await customRequestWithLimitsAndRetries(new URL(url));
   const json = await res.body.json();
   return json;
 }

@@ -1,6 +1,7 @@
 import { Dispatcher, request, Agent } from "undici";
 import pLimit from "p-limit";
 import { userAgent } from "./config.js";
+import pThrottle from "p-throttle";
 
 const dispatcher = new Agent({
   connect: { timeout: 60 * 1000 },
@@ -20,7 +21,8 @@ export class StatusCodeError extends Error {
 export class TooManyRedirectsError extends Error {}
 
 /** key es host
- * @type {Map<string, import("p-limit").LimitFunction>} */
+ * @type {Map<string, <Argument extends unknown, ReturnType>(
+		fn: (arguments_: Argument) => PromiseLike<ReturnType>) => Promise<ReturnType>>} */
 const limiters = new Map();
 const nConnections = process.env.N_THREADS
   ? parseInt(process.env.N_THREADS)
@@ -76,10 +78,13 @@ function wait(ms) {
 function _customRequestWithLimits(url) {
   let limit = limiters.get(url.host);
   if (!limit) {
-    limit = pLimit(
-      // tenemos que pingear mucho la API
-      url.host === "data.buenosaires.gob.ar" ? 32 : nConnections
-    );
+    if (url.host === "cdn.buenosaires.gob.ar") {
+      // tenemos que throttlear en este host porque tiene un rate limit.
+      // de todas maneras descarga rápido
+      limit = pThrottle({ limit: 3, interval: 1000 })((x) => x());
+    } else {
+      limit = pLimit(nConnections);
+    }
     limiters.set(url.host, limit);
   }
   return limit(() => _customRequest(url));

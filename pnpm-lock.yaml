@@ -20,6 +20,9 @@ importers:
       p-limit:
         specifier: ^5.0.0
         version: 5.0.0
+      p-throttle:
+        specifier: ^6.1.0
+        version: 6.1.0
       undici:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1201,6 +1204,11 @@ packages:
     engines: {node: '>=18'}
     dependencies:
       yocto-queue: 1.0.0
+    dev: false
+
+  /p-throttle@6.1.0:
+    resolution: {integrity: sha512-eQMdGTxk2+047La67wefUtt0tEHh7D+C8Jl7QXoFCuIiNYeQ9zWs2AZiJdIAs72rSXZ06t11me2bgalRNdy3SQ==}
+    engines: {node: '>=18'}
     dev: false
 
   /parent-module@1.0.1:

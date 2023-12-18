@@ -1,13 +1,12 @@
-import { Dispatcher, request, Agent, setGlobalDispatcher } from "undici";
+import { Dispatcher, request, Agent } from "undici";
 import pLimit from "p-limit";
 import { userAgent } from "./config.js";
 
-setGlobalDispatcher(
-  new Agent({
-    pipelining: 0,
-    bodyTimeout: 15 * 60 * 1000,
-  })
-);
+const dispatcher = new Agent({
+  pipelining: 0,
+  bodyTimeout: 15 * 60 * 1000,
+  maxRedirections: 20,
+});
 
 export class StatusCodeError extends Error {
   /**
@@ -82,19 +81,27 @@ async function _customRequestWithLimits(url) {
 }
 
 /**
+ * genera los headers para hacer un pedido dependiendo de la url
  * @param {URL} url
  */
-async function _customRequest(url) {
+function getHeaders(url) {
   // sharepoint no le gusta compartir a bots lol
   const spoofUserAgent = url.host.endsWith("sharepoint.com");
 
+  return {
+    "User-Agent": spoofUserAgent
+      ? "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
+      : userAgent,
+  };
+}
+
+/**
+ * @param {URL} url
+ */
+async function _customRequest(url) {
   const res = await request(url.toString(), {
-    maxRedirections: 20,
-    headers: {
-      "User-Agent": spoofUserAgent
-        ? "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
-        : userAgent,
-    },
+    headers: getHeaders(url),
+    dispatcher,
   });
   if (res.statusCode >= 300 && res.statusCode <= 399)
     throw new TooManyRedirectsError();

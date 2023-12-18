@@ -13,7 +13,7 @@
   "dependencies": {
     "common": "workspace:",
     "p-limit": "^5.0.0",
-    "undici": "^5.28.0",
+    "undici": "^6.0.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

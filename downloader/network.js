@@ -65,8 +65,9 @@ function wait(ms) {
 
 /**
  * @param {URL} url
+ * @returns {Promise<Dispatcher.ResponseData>}
  */
-async function _customRequestWithLimits(url) {
+function _customRequestWithLimits(url) {
   let limit = limiters.get(url.host);
   if (!limit) {
     limit = pLimit(
@@ -75,9 +76,7 @@ async function _customRequestWithLimits(url) {
     );
     limiters.set(url.host, limit);
   }
-  return limit(async () => {
-    return await _customRequest(url);
-  });
+  return limit(() => _customRequest(url));
 }
 
 /**

@@ -3,7 +3,7 @@ import pLimit from "p-limit";
 import { userAgent } from "./config.js";
 
 const dispatcher = new Agent({
-  pipelining: 0,
+  connect: { timeout: 60 * 1000 },
   bodyTimeout: 15 * 60 * 1000,
   maxRedirections: 20,
 });

@@ -1,4 +1,4 @@
-import { mkdir, open, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join, normalize } from "node:path";
 import { targetsPorDefecto } from "./config.js";
 import { generateDataJsonFromCkan } from "./ckan_to_datajson.js";

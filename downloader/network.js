@@ -49,7 +49,7 @@ export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
     ) {
       if (REPORT_RETRIES)
         console.debug(`reintentando(status)[${attempts}] ${url.toString()}`);
-      await wait(15000 + Math.random() * 10000);
+      await wait(1000 * (attempts + 1) ** 2 + Math.random() * 10000);
       return await customRequestWithLimitsAndRetries(url, attempts + 1);
     }
     // si no fue un error de http, reintentar hasta 3 veces con ~10 segundos de por medio

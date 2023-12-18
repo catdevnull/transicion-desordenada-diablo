@@ -26,6 +26,8 @@ const nConnections = process.env.N_THREADS
   ? parseInt(process.env.N_THREADS)
   : 8;
 
+const REPORT_RETRIES = process.env.REPORT_RETRIES === "true" || false;
+
 /**
  * @argument {URL} url
  * @argument {number} attempts
@@ -43,7 +45,9 @@ export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
         (error.code === 503 && url.host === "cdn.buenosaires.gob.ar")) &&
       attempts < 15
     ) {
-      await wait(15000);
+      if (REPORT_RETRIES)
+        console.debug(`reintentando(status)[${attempts}] ${url.toString()}`);
+      await wait(15000 + Math.random() * 10000);
       return await customRequestWithLimitsAndRetries(url, attempts + 1);
     }
     // si no fue un error de http, reintentar hasta 3 veces con ~10 segundos de por medio
@@ -52,6 +56,8 @@ export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
       !(error instanceof TooManyRedirectsError) &&
       attempts < 7
     ) {
+      if (REPORT_RETRIES)
+        console.debug(`reintentando[${attempts}] ${url.toString()}`);
       await wait(5000 + Math.random() * 10000);
       return await customRequestWithLimitsAndRetries(url, attempts + 1);
     } else throw error;

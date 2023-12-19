@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { join, normalize } from "node:path";
+import { join } from "node:path";
 import { targetsPorDefecto } from "./config.js";
 import { generateDataJsonFromCkan } from "./ckan_to_datajson.js";
 import { zData } from "common/schema.js";
@@ -10,6 +10,7 @@ import {
 } from "./network.js";
 import { createWriteStream } from "node:fs";
 import pMap from "p-map";
+import { sanitizeSuffix, shuffleArray, hasDuplicates } from "./utils.js";
 
 let urls = process.argv.slice(2);
 if (urls.length < 1) {
@@ -166,14 +167,6 @@ async function downloadDistWithRetries({ dist, dataset, url, outputPath }) {
  * @prop {Date=} waitUntil
  */
 
-// https://security.stackexchange.com/a/123723
-/**
- * @argument {string} path
- */
-function sanitizeSuffix(path) {
-  return normalize(path).replace(/^(\.\.(\/|\\|$))+/, "");
-}
-
 /**
  * @param {DownloadJob[]} jobs
  * @param {string} id
@@ -187,11 +180,6 @@ function chequearIdsDuplicados(jobs, id) {
       `ADVERTENCIA[${id}]: ¡encontré duplicados! es posible que se pisen archivos entre si`
     );
   }
-}
-// https://stackoverflow.com/a/7376645
-/** @argument {any[]} array */
-function hasDuplicates(array) {
-  return new Set(array).size !== array.length;
 }
 
 /**
@@ -227,13 +215,4 @@ function patchUrl(url) {
     url.protocol = "https:";
   }
   return url;
-}
-
-// https://stackoverflow.com/a/12646864
-/** @param {any[]} array */
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
 }

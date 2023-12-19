@@ -34,20 +34,11 @@ for (const target of targets)
  */
 async function downloadFromData(target) {
   const outputPath = generateOutputPath(target.url);
-  let json;
-  if (target.type === "ckan") {
-    json = await generateDataJsonFromCkan(target.url);
-  } else if (target.type === "datajson") {
-    const jsonRes = await customRequestWithLimitsAndRetries(
-      new URL(target.url)
-    );
-    json = await jsonRes.body.json();
-  }
-
-  const parsed = zData.parse(json);
+  const json = await getDataJsonForTarget(target);
+  const parsed = zData.parse(JSON.parse(json));
 
   await mkdir(outputPath, { recursive: true });
-  await writeFile(join(outputPath, "data.json"), JSON.stringify(json));
+  await writeFile(join(outputPath, "data.json"), json);
   await writeFile(join(outputPath, "url.txt"), `${target.type}+${target.url}`);
   const errorFile = createWriteStream(join(outputPath, "errors.jsonl"), {
     flags: "w",
@@ -115,6 +106,21 @@ async function downloadFromData(target) {
   } finally {
     errorFile.close();
   }
+}
+
+/**
+ * @param {Target} target
+ * @returns {Promise<string>}
+ */
+async function getDataJsonForTarget(target) {
+  if (target.type === "ckan") {
+    return JSON.stringify(await generateDataJsonFromCkan(target.url));
+  } else if (target.type === "datajson") {
+    const jsonRes = await customRequestWithLimitsAndRetries(
+      new URL(target.url)
+    );
+    return await jsonRes.body.text();
+  } else throw new Error("?????????????");
 }
 
 /**

@@ -13,6 +13,7 @@
   "dependencies": {
     "common": "workspace:",
     "p-limit": "^5.0.0",
+    "p-map": "^7.0.0",
     "p-throttle": "^6.1.0",
     "undici": "^6.0.1",
     "zod": "^3.22.4"

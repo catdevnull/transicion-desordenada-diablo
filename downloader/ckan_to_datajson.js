@@ -1,6 +1,7 @@
 import z from "zod";
+import pMap from "p-map";
 import { basename } from "path";
-import { customRequestWithLimitsAndRetries } from "./network.js";
+import { customRequest } from "./network.js";
 
 const zCkanPackageList = z.object({
   success: z.literal(true),
@@ -11,7 +12,7 @@ const zCkanPackageList = z.object({
  * @param {string} url
  */
 async function getJson(url) {
-  const res = await customRequestWithLimitsAndRetries(new URL(url));
+  const res = await customRequest(new URL(url));
   const json = await res.body.json();
   return json;
 }
@@ -114,9 +115,9 @@ async function getCkanInfo(ckanUrl) {
 export async function generateDataJsonFromCkan(ckanUrl) {
   const list = await getCkanPackageList(ckanUrl);
   const info = await getCkanInfo(ckanUrl);
-  const packages = await Promise.all(
-    list.map((n) => getCkanPackage(ckanUrl, n))
-  );
+  const packages = await pMap(list, (link) => getCkanPackage(ckanUrl, link), {
+    concurrency: 12,
+  });
   /** @type {import("common/schema.js").Data &  { generatedBy: string }} */
   const data = {
     generatedBy:

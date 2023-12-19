@@ -20,6 +20,9 @@ importers:
       p-limit:
         specifier: ^5.0.0
         version: 5.0.0
+      p-map:
+        specifier: ^7.0.0
+        version: 7.0.0
       p-throttle:
         specifier: ^6.1.0
         version: 6.1.0
@@ -1204,6 +1207,11 @@ packages:
     engines: {node: '>=18'}
     dependencies:
       yocto-queue: 1.0.0
+    dev: false
+
+  /p-map@7.0.0:
+    resolution: {integrity: sha512-EZl03dLKv3RypkrjlevZoNwQMSy4bAblWcR18zhonktnN4fUs3asFQKSe0awn982omGxamvbejqQKQYDJYHCEg==}
+    engines: {node: '>=18'}
     dev: false
 
   /p-throttle@6.1.0:

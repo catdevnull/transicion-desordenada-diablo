@@ -1,7 +1,5 @@
 import { Dispatcher, request, Agent } from "undici";
-import pLimit from "p-limit";
 import { userAgent } from "./config.js";
-import pThrottle from "p-throttle";
 
 const dispatcher = new Agent({
   connect: { timeout: 60 * 1000 },
@@ -20,14 +18,6 @@ export class StatusCodeError extends Error {
 }
 export class TooManyRedirectsError extends Error {}
 
-/** key es host
- * @type {Map<string, <Argument extends unknown, ReturnType>(
-		fn: (arguments_: Argument) => PromiseLike<ReturnType>) => Promise<ReturnType>>} */
-const limiters = new Map();
-const nConnections = process.env.N_THREADS
-  ? parseInt(process.env.N_THREADS)
-  : 8;
-
 const REPORT_RETRIES = process.env.REPORT_RETRIES === "true" || false;
 
 /**
@@ -35,9 +25,9 @@ const REPORT_RETRIES = process.env.REPORT_RETRIES === "true" || false;
  * @argument {number} attempts
  * @returns {Promise<Dispatcher.ResponseData>}
  */
-export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
+export async function customRequestWithRetries(url, attempts = 0) {
   try {
-    return await _customRequestWithLimits(url);
+    return await customRequest(url);
   } catch (error) {
     // algunos servidores usan 403 como coso para decir "calmate"
     // intentar hasta 15 veces con 15 segundos de por medio
@@ -50,7 +40,7 @@ export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
       if (REPORT_RETRIES)
         console.debug(`reintentando(status)[${attempts}] ${url.toString()}`);
       await wait(1000 * (attempts + 1) ** 2 + Math.random() * 10000);
-      return await customRequestWithLimitsAndRetries(url, attempts + 1);
+      return await customRequestWithRetries(url, attempts + 1);
     }
     // si no fue un error de http, reintentar hasta 3 veces con ~10 segundos de por medio
     else if (
@@ -61,7 +51,7 @@ export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
       if (REPORT_RETRIES)
         console.debug(`reintentando[${attempts}] ${url.toString()}`);
       await wait(5000 + Math.random() * 10000);
-      return await customRequestWithLimitsAndRetries(url, attempts + 1);
+      return await customRequestWithRetries(url, attempts + 1);
     } else throw error;
   }
 }
@@ -69,25 +59,6 @@ export async function customRequestWithLimitsAndRetries(url, attempts = 0) {
 /** @argument {number} ms */
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * @param {URL} url
- * @returns {Promise<Dispatcher.ResponseData>}
- */
-function _customRequestWithLimits(url) {
-  let limit = limiters.get(url.host);
-  if (!limit) {
-    if (url.host === "cdn.buenosaires.gob.ar") {
-      // tenemos que throttlear en este host porque tiene un rate limit.
-      // de todas maneras descarga rápido
-      limit = pThrottle({ limit: 3, interval: 1000 })((x) => x());
-    } else {
-      limit = pLimit(nConnections);
-    }
-    limiters.set(url.host, limit);
-  }
-  return limit(() => _customRequest(url));
 }
 
 /**
@@ -108,7 +79,7 @@ function getHeaders(url) {
 /**
  * @param {URL} url
  */
-async function _customRequest(url) {
+export async function customRequest(url) {
   const res = await request(url.toString(), {
     headers: getHeaders(url),
     dispatcher,

@@ -6,9 +6,10 @@ import { zData } from "common/schema.js";
 import {
   StatusCodeError,
   TooManyRedirectsError,
-  customRequestWithLimitsAndRetries,
+  customRequestWithRetries,
 } from "./network.js";
 import { createWriteStream } from "node:fs";
+import pMap from "p-map";
 
 let urls = process.argv.slice(2);
 if (urls.length < 1) {
@@ -82,16 +83,21 @@ async function downloadFromData(target) {
 
     shuffleArray(jobs);
 
-    const promises = jobs.map(async (job) => {
-      try {
-        return await downloadDistWithRetries(job);
-      } catch (error) {
-        errorFile.write(JSON.stringify(encodeError(job, error)) + "\n");
-        nErrors++;
-      } finally {
-        nFinished++;
-      }
-    });
+    const promise = pMap(
+      jobs,
+      async (job) => {
+        try {
+          return await downloadDistWithRetries(job);
+        } catch (error) {
+          errorFile.write(JSON.stringify(encodeError(job, error)) + "\n");
+          nErrors++;
+        } finally {
+          nFinished++;
+        }
+      },
+      // en realidad está limitado por el balancedpool
+      { concurrency: 32 }
+    );
 
     process.stderr.write(`info[${outputPath}]: 0/${totalJobs} done\n`);
     const interval = setInterval(() => {
@@ -99,7 +105,7 @@ async function downloadFromData(target) {
         `info[${outputPath}]: ${nFinished}/${totalJobs} done\n`
       );
     }, 30000);
-    await Promise.all(promises);
+    await promise;
     clearInterval(interval);
     if (nErrors > 0)
       console.error(`${outputPath}: Finished with ${nErrors} errors`);
@@ -116,9 +122,7 @@ async function getDataJsonForTarget(target) {
   if (target.type === "ckan") {
     return JSON.stringify(await generateDataJsonFromCkan(target.url));
   } else if (target.type === "datajson") {
-    const jsonRes = await customRequestWithLimitsAndRetries(
-      new URL(target.url)
-    );
+    const jsonRes = await customRequestWithRetries(new URL(target.url));
     return await jsonRes.body.text();
   } else throw new Error("?????????????");
 }
@@ -136,7 +140,7 @@ export function generateOutputPath(jsonUrlString) {
  * @argument {DownloadJob} job
  */
 async function downloadDistWithRetries({ dist, dataset, url, outputPath }) {
-  const res = await customRequestWithLimitsAndRetries(url);
+  const res = await customRequestWithRetries(url);
 
   const fileDirPath = join(
     outputPath,

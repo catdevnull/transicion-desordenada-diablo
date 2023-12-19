@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "common": "workspace:",
+    "fastq": "^1.16.0",
     "p-limit": "^5.0.0",
     "p-map": "^7.0.0",
     "p-throttle": "^6.1.0",

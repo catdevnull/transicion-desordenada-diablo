@@ -22,3 +22,16 @@ export function shuffleArray(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+/** @argument {number} ms */
+export function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** @argument {Date} date */
+export async function waitUntil(date) {
+  const relative = +date - Date.now();
+  console.debug({ relative, date, now: Date.now() });
+  if (relative <= 0) return;
+  await wait(relative);
+}

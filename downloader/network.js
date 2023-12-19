@@ -18,49 +18,6 @@ export class StatusCodeError extends Error {
 }
 export class TooManyRedirectsError extends Error {}
 
-const REPORT_RETRIES = process.env.REPORT_RETRIES === "true" || false;
-
-/**
- * @argument {URL} url
- * @argument {number} attempts
- * @returns {Promise<Dispatcher.ResponseData>}
- */
-export async function customRequestWithRetries(url, attempts = 0) {
-  try {
-    return await customRequest(url);
-  } catch (error) {
-    // algunos servidores usan 403 como coso para decir "calmate"
-    // intentar hasta 15 veces con 15 segundos de por medio
-    if (
-      error instanceof StatusCodeError &&
-      ((error.code === 403 && url.host === "minsegar-my.sharepoint.com") ||
-        (error.code === 503 && url.host === "cdn.buenosaires.gob.ar")) &&
-      attempts < 15
-    ) {
-      if (REPORT_RETRIES)
-        console.debug(`reintentando(status)[${attempts}] ${url.toString()}`);
-      await wait(1000 * (attempts + 1) ** 2 + Math.random() * 10000);
-      return await customRequestWithRetries(url, attempts + 1);
-    }
-    // si no fue un error de http, reintentar hasta 3 veces con ~10 segundos de por medio
-    else if (
-      !(error instanceof StatusCodeError) &&
-      !(error instanceof TooManyRedirectsError) &&
-      attempts < 7
-    ) {
-      if (REPORT_RETRIES)
-        console.debug(`reintentando[${attempts}] ${url.toString()}`);
-      await wait(5000 + Math.random() * 10000);
-      return await customRequestWithRetries(url, attempts + 1);
-    } else throw error;
-  }
-}
-
-/** @argument {number} ms */
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 /**
  * genera los headers para hacer un pedido dependiendo de la url
  * @param {URL} url

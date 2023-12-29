@@ -30,14 +30,6 @@ export const zData = z.object({
 });
 /** @typedef {z.infer<typeof zData>} Data */
 
-export const zError = z.object({
-  url: z.string().optional(),
-  datasetIdentifier: z.string(),
-  distributionIdentifier: z.string(),
-  kind: z.enum(["generic_error", "http_error", "infinite_redirect"]),
-  error: z.string().optional(),
-});
-
 export const zDumpMetadata = z.object({
   sites: z.array(
     z.object({
@@ -49,3 +41,23 @@ export const zDumpMetadata = z.object({
   ),
 });
 /** @typedef {z.infer<typeof zDumpMetadata>} DumpMetadata */
+
+const zDumpErrorAlways = {
+  url: z.string().optional(),
+  datasetIdentifier: z.string(),
+  distributionIdentifier: z.string(),
+};
+export const zDumpError = z.discriminatedUnion("kind", [
+  z.object({
+    ...zDumpErrorAlways,
+    kind: z.literal("http_error"),
+    status_code: z.number(),
+  }),
+  z.object({ ...zDumpErrorAlways, kind: z.literal("infinite_redirect") }),
+  z.object({
+    ...zDumpErrorAlways,
+    kind: z.literal("generic_error"),
+    error: z.string(),
+  }),
+]);
+/** @typedef {z.infer<typeof zDumpError>} DumpError */

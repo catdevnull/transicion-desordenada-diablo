@@ -1,5 +1,5 @@
 import streamSaver from "streamsaver";
-import { zData, type Distribution, zError, zDumpMetadata } from "common/schema";
+import { zData, type Distribution, zDumpError, zDumpMetadata } from "common/schema";
 
 export async function downloadFile(
   dataPath: string,
@@ -73,6 +73,6 @@ export async function fetchErrors(url: string) {
     .split("\n")
     .filter((line) => !!line)
     .map((line) => JSON.parse(line))
-    .map((json) => zError.parse(json));
+    .map((json) => zDumpError.parse(json));
   return lines;
 }

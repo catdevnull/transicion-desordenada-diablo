@@ -13,7 +13,6 @@
 
   $: data = Promise.all([fetchData(url), fetchErrors(url)])
     .then(([data, errors]) => ({ data, errors }))
-    .catch(alert);
 
   function arreglarHomepageUrl(url: string): string {
     if (!url.startsWith("http://") && !url.startsWith("https://"))

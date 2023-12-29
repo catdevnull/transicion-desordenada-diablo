@@ -13,7 +13,6 @@
 
   $: data = Promise.all([fetchData(url), fetchErrors(url)])
     .then(([data, errors]) => ({ data, errors }))
-    .catch(alert);
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -102,6 +101,8 @@
           {/each}
         </ul>
       {/if}
+    {:catch error}
+      Hubo un error intenando cargar este dataset archivado. <pre>{error}</pre>
     {/await}
   </Container>
 </main>

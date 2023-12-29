@@ -6,6 +6,11 @@ const dispatcher = new Agent({
   bodyTimeout: 15 * 60 * 1000,
   maxRedirections: 20,
 });
+const ignoreTlsDispatcher = new Agent({
+  connect: { timeout: 60 * 1000, rejectUnauthorized: false },
+  bodyTimeout: 15 * 60 * 1000,
+  maxRedirections: 20,
+});
 
 export class StatusCodeError extends Error {
   /**
@@ -34,7 +39,8 @@ export async function customRequestWithRetries(url, attempts = 0) {
     if (
       error instanceof StatusCodeError &&
       ((error.code === 403 && url.host === "minsegar-my.sharepoint.com") ||
-        (error.code === 503 && url.host === "cdn.buenosaires.gob.ar")) &&
+        (error.code === 503 && url.host === "cdn.buenosaires.gob.ar") ||
+        (error.code === 502 && url.host === "datos.jus.gob.ar")) &&
       attempts < 15
     ) {
       if (REPORT_RETRIES)
@@ -80,6 +86,10 @@ function getHeaders(url) {
  * @param {URL} url
  */
 export async function customRequest(url) {
+  let d = dispatcher;
+  if (url.hostname === "datos.agroindustria.gob.ar") {
+    d = ignoreTlsDispatcher;
+  }
   const res = await request(url.toString(), {
     headers: getHeaders(url),
     dispatcher,

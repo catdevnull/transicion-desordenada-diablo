@@ -7,7 +7,13 @@ const dispatcher = new Agent({
   maxRedirections: 20,
 });
 const ignoreTlsDispatcher = new Agent({
-  connect: { timeout: 60 * 1000, rejectUnauthorized: false },
+  connect: {
+    timeout: 60 * 1000,
+    rejectUnauthorized: false,
+    checkServerIdentity() {
+      return undefined;
+    },
+  },
   bodyTimeout: 15 * 60 * 1000,
   maxRedirections: 20,
 });
@@ -87,7 +93,11 @@ function getHeaders(url) {
  */
 export async function customRequest(url) {
   let d = dispatcher;
-  if (url.hostname === "datos.agroindustria.gob.ar") {
+  if (
+    url.hostname === "www.energia.gob.ar" ||
+    url.hostname === "datos.agroindustria.gob.ar" ||
+    url.hostname === "www.agroindustria.gob.ar"
+  ) {
     d = ignoreTlsDispatcher;
   }
   const res = await request(url.toString(), {

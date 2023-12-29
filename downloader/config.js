@@ -35,7 +35,6 @@ export const targetsPorDefecto = [
   // "datajson+http://andino.siu.edu.ar/data.json",
   "datajson+https://monitoreo.datos.gob.ar/catalog/educacion/data.json",
   "datajson+https://monitoreo.datos.gob.ar/media/catalog/inti/data.json",
-  "datajson+https://monitoreo.datos.gob.ar/catalog/ssprys/data.json",
   "datajson+https://www.presupuestoabierto.gob.ar/sici/rest-api/catalog/public",
   "datajson+https://transparencia.enargas.gob.ar/data.json",
   "datajson+https://infra.datos.gob.ar/catalog/sspm/data.json",

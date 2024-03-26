@@ -33,21 +33,21 @@
         <!-- nDatasets: jq '.dataset | length' */data.json | awk '{s+=$1} END {print s}' -->
         <!-- size: du -sh -->
         <Dump
-          dumpUrl="https://archivos.nulo.ar/portales-de-datos/dump-2023-12-09/"
+          dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2023-12-09"
           nPortales={51}
           nDatasets={4157}
           size="155 GB"
           glow>29 de diciembre de 2023</Dump
         >
         <Dump
-          dumpUrl="https://archivos.nulo.ar/portales-de-datos/dump-2023-12-09/"
+          dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2023-12-09"
           nPortales={50}
           nDatasets={4098}
           size="147 GB"
           >9 de diciembre de 2023</Dump
         >
         <Dump
-          dumpUrl="https://archivos.nulo.ar/dump-2023-12-08/"
+          dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2023-12-08"
           nPortales={43}
           nDatasets={3277}
           size="100 GB">8 de diciembre de 2023</Dump

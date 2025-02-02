@@ -200,6 +200,7 @@ async function downloadDistWithRetries({ dist, dataset, url, outputPath }) {
     sanitizeSuffix(dist.fileName || dist.identifier)
   );
 
+  console.debug(filePath);
   if (!res.body) throw new Error("no body");
   await writeFile(filePath, res.body);
 }
@@ -257,6 +258,12 @@ function encodeError(job, error) {
   else if (error instanceof TooManyRedirectsError)
     return { ...always, kind: "infinite_redirect" };
   else {
+    if (error.code === "PATH_LENGTH_EXCEEDED") {
+      console.error(
+        `Parece que algún nombre de archivo es muy largo (${error.code}):`,
+        job
+      );
+    }
     return {
       ...always,
       kind: "generic_error",

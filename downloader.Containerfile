@@ -16,4 +16,5 @@ COPY --from=build /tmp/build/downloader/download_json.build.js /usr/local/bin/do
 COPY --from=build /tmp/build/downloader/generate_dump_metadata.build.js /usr/local/bin/generate_dump_metadata.js
 ENV NODE_EXTRA_CA_CERTS=/usr/lib/ca_intermediate_root_bundle.pem
 WORKDIR /data
-CMD ["/sbin/tini", "node", "--enable-source-maps", "/usr/local/bin/download_json.js"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "--enable-source-maps", "/usr/local/bin/download_json.js"]

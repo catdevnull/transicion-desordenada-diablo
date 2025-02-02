@@ -68,7 +68,7 @@ const zCkanPackage = z.object({
   tags: z.array(zCkanTag),
   groups: z.array(zCkanGroup),
   organization: zCkanOrganization,
-  url: z.string(),
+  url: z.string().nullable(),
   notes: z.string(),
 });
 const zCkanPackageShow = z.object({
@@ -133,7 +133,9 @@ export async function generateDataJsonFromCkan(ckanUrl) {
         name: p.maintainer,
         mbox: p.maintainer_email,
       },
-      landingPage: p.url,
+      landingPage:
+        p.url ??
+        `${ckanUrl}/api/3/action/package_show?id=${encodeURIComponent(p.id)}`,
       distribution: p.resources.map((r) => ({
         identifier: r.id,
         title: r.name,

@@ -11,8 +11,9 @@
   export let params: { dumpUrl: string; portal: string; id: string };
   $: url = decodeURIComponent(params.dumpUrl) + "/" + params.portal;
 
-  $: data = Promise.all([fetchData(url), fetchErrors(url)])
-    .then(([data, errors]) => ({ data, errors }))
+  $: data = Promise.all([fetchData(url), fetchErrors(url)]).then(
+    ([data, errors]) => ({ data, errors }),
+  );
 </script>
 
 <main class="mx-auto max-w-3xl">
@@ -89,8 +90,10 @@
                   <button
                     type="button"
                     class="focus:shadow-outline inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
-                    on:click={() => downloadFile(url, dataset.identifier, dist)}
-                    >Descargar</button
+                    on:click={() =>
+                      downloadFile(url, dataset.identifier, dist).catch((e) =>
+                        alert(e.message),
+                      )}>Descargar</button
                   >
                 {/if}
                 {#if dist.downloadURL}

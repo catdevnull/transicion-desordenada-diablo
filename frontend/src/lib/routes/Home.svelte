@@ -28,23 +28,28 @@
         class="divide-y divide-gray-100 border-y border-y-gray-100 dark:divide-gray-700 dark:border-y-gray-700"
       >
         <!-- para ver diferencias entre dumps descomprimidos (fish shell): diff -u (find data-2023-12-09 -printf '%P\n' | sort | psub) (find data -printf '%P\n' | sort | psub)|less -->
-      
+
         <!-- nPortales: find . -maxdepth 1 -mindepth 1 -type d | wc -l -->
         <!-- nDatasets: jq '.dataset | length' */data.json | awk '{s+=$1} END {print s}' -->
         <!-- size: du -sh -->
         <Dump
+          dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2025-02-03"
+          nPortales={50}
+          nDatasets={4202}
+          size="167 GB"
+          glow>3 de febrero de 2025</Dump
+        >
+        <Dump
           dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2023-12-09"
           nPortales={51}
           nDatasets={4157}
-          size="155 GB"
-          glow>29 de diciembre de 2023</Dump
+          size="155 GB">29 de diciembre de 2023</Dump
         >
         <Dump
           dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2023-12-09"
           nPortales={50}
           nDatasets={4098}
-          size="147 GB"
-          >9 de diciembre de 2023</Dump
+          size="147 GB">9 de diciembre de 2023</Dump
         >
         <Dump
           dumpUrl="https://datos-argentina.s3.us-west-004.backblazeb2.com/dump-2023-12-08"

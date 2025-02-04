@@ -1,7 +1,7 @@
 import z from "zod";
 import pMap from "p-map";
 import { basename } from "path";
-import { customRequest } from "./network.js";
+import { customRequestWithRetries } from "./network.js";
 
 const zCkanPackageList = z.object({
   success: z.literal(true),
@@ -12,7 +12,7 @@ const zCkanPackageList = z.object({
  * @param {string} url
  */
 async function getJson(url) {
-  const res = await customRequest(new URL(url));
+  const res = await customRequestWithRetries(new URL(url));
   const json = await res.body.json();
   return json;
 }

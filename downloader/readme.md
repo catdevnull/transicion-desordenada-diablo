@@ -25,7 +25,8 @@ pnpm run run
 ## contenedor
 
 ```
-docker run --rm -it -v ./data:/data gitea.nulo.in/nulo/transicion-desordenada-diablo/downloader
+docker build -t downloader -f ../downloader.Containerfile ..
+docker run --rm -it -v ./data:/data downloader
 # descarga datos.gob.ar
 ```
 

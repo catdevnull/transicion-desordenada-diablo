@@ -84,7 +84,7 @@ Ejemplo:
       - energia_9f602b6e-2bef-4ac4-895d-f6ecd6bb1866 (este archivo no tiene fileName en el data.json, entonces se reutiliza el identifier)
   - ...
 
-Este dump fue generado con transicion-desordenada-diablo: https://gitea.nulo.in/Nulo/transicion-desordenada-diablo
+Este dump fue generado con transicion-desordenada-diablo: https://github.com/catdevnull/transicion-desordenada-diablo
 
 Se puede usar el frontend en esa repo para ver el dump.
 `;

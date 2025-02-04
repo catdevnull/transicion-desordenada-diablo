@@ -20,13 +20,13 @@ export async function downloadFile(
 
 async function fetchGzipped(url: string): Promise<Response> {
   let res = await fetch(url);
-  if (!res.ok) throw new Error("no se pudo descargar el archivo");
   if (res.status === 404 && url.endsWith(".gz")) {
     // probar cargando el archivo no comprimido
     res = await fetch(url.slice(0, url.length - ".gz".length));
     if (!res.ok) throw new Error("no se pudo descargar el archivo");
     return res;
   }
+  if (!res.ok) throw new Error("no se pudo descargar el archivo");
   let DecStream;
   if ("DecompressionStream" in window) DecStream = window.DecompressionStream;
   else {

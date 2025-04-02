@@ -7,3 +7,5 @@ data/
 data*
 
 *.zip
+
+.DS_Store

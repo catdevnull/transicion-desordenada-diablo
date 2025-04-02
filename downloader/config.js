@@ -61,4 +61,4 @@ export const targetsPorDefecto = [
 // FYI: al menos los siguientes dominios no tienen la cadena completa de certificados en HTTPS. tenemos que usar un hack (node_extra_ca_certs_mozilla_bundle) para conectarnos a estos sitios. (se puede ver con ssllabs.com) ojalá lxs administradorxs de estos servidores lo arreglen.
 // www.enargas.gov.ar, transparencia.enargas.gov.ar, www.energia.gob.ar, www.economia.gob.ar, datos.yvera.gob.ar
 
-export const userAgent = "transicion-desordenada (https://nulo.ar)";
+export const userAgent = "transicion-desordenada (https://datos.nulo.lol)";

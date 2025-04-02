@@ -64,7 +64,7 @@
       <p>
         Las herramientas para descargar masivamente los archivos fueron
         desarrolladas por
-        <a href="https://nulo.ar">Nulo</a> (y con ayuda de varias personas). El
+        <a href="https://nulo.lol">Nulo</a> (y con ayuda de varias personas). El
         código está disponible
         <a
           href="https://github.com/catdevnull/transicion-desordenada-diablo/"
